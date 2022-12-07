@@ -7,8 +7,7 @@ use cetkaik_core::{absolute, serialize_color, Color, Profession};
 pub struct Board([SingleRow; 9]);
 type SingleRow = [Option<PieceWithSide>; 9];
 
-/// 皇は 49、IA 側なら 1 〜 48、A 側なら最上位ビットを立てる
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PieceWithSide(NonZeroU8);
 
 pub enum MaybeTam2<T> {
@@ -18,7 +17,7 @@ pub enum MaybeTam2<T> {
 
 impl PieceWithSide {
     pub fn new(u: u8) -> Option<Self> {
-        if (1..=49).contains(&u) || ((128 | 1)..=(128 | 48)).contains(&u) {
+        if (0o100..=0o157).contains(&u) || (0o200..=0o257).contains(&u) || 0o300 == u {
             let u = std::num::NonZeroU8::new(u)?;
             Some(Self(u))
         } else {
@@ -26,101 +25,113 @@ impl PieceWithSide {
         }
     }
     /// # Safety
-    /// The input must satisfy `(1..=49).contains(&u) || ((128 | 1)..=(128 | 48)).contains(&u)`
+    /// The input must satisfy `(0o100..=0o157).contains(&u) || (0o200..=0o257).contains(&u) || 0o300 == u`
     pub const unsafe fn new_unchecked(u: u8) -> Self {
         Self(std::num::NonZeroU8::new_unchecked(u))
     }
     pub const fn color(self) -> Color {
-        if self.0.get() % 2 == 1 {
+        if self.0.get() % 2 == 0 {
             Color::Huok2
         } else {
             Color::Kok1
         }
     }
+    pub const fn is_tam2(self) -> bool {
+        self.0.get() & 0o300 == 0o300
+    }
     pub const fn prof(self) -> MaybeTam2<Profession> {
-        let s = self.0.get() & 127;
-        if s <= 16 {
+        if self.is_tam2() {
+            return MaybeTam2::Tam2;
+        }
+        let p = self.0.get() & 0o77;
+        if p < 16 {
             MaybeTam2::NotTam2(Profession::Kauk2)
-        } else if s <= 20 {
+        } else if p < 20 {
             MaybeTam2::NotTam2(Profession::Gua2)
-        } else if s <= 24 {
+        } else if p < 24 {
             MaybeTam2::NotTam2(Profession::Kaun1)
-        } else if s <= 28 {
+        } else if p < 28 {
             MaybeTam2::NotTam2(Profession::Dau2)
-        } else if s <= 32 {
+        } else if p < 32 {
             MaybeTam2::NotTam2(Profession::Maun1)
-        } else if s <= 36 {
+        } else if p < 36 {
             MaybeTam2::NotTam2(Profession::Kua2)
-        } else if s <= 40 {
+        } else if p < 40 {
             MaybeTam2::NotTam2(Profession::Tuk2)
-        } else if s <= 44 {
+        } else if p < 44 {
             MaybeTam2::NotTam2(Profession::Uai1)
-        } else if s <= 46 {
+        } else if p < 46 {
             MaybeTam2::NotTam2(Profession::Io)
-        } else if s <= 48 {
-            MaybeTam2::NotTam2(Profession::Nuak1)
         } else {
-            MaybeTam2::Tam2
+            MaybeTam2::NotTam2(Profession::Nuak1)
         }
     }
     pub const fn prof_and_side(self) -> MaybeTam2<(Profession, absolute::Side)> {
-        let s = self.0.get();
-        if s <= 16 {
-            MaybeTam2::NotTam2((Profession::Kauk2, absolute::Side::IASide))
-        } else if s <= 20 {
-            MaybeTam2::NotTam2((Profession::Gua2, absolute::Side::IASide))
-        } else if s <= 24 {
-            MaybeTam2::NotTam2((Profession::Kaun1, absolute::Side::IASide))
-        } else if s <= 28 {
-            MaybeTam2::NotTam2((Profession::Dau2, absolute::Side::IASide))
-        } else if s <= 32 {
-            MaybeTam2::NotTam2((Profession::Maun1, absolute::Side::IASide))
-        } else if s <= 36 {
-            MaybeTam2::NotTam2((Profession::Kua2, absolute::Side::IASide))
-        } else if s <= 40 {
-            MaybeTam2::NotTam2((Profession::Tuk2, absolute::Side::IASide))
-        } else if s <= 44 {
-            MaybeTam2::NotTam2((Profession::Uai1, absolute::Side::IASide))
-        } else if s <= 46 {
-            MaybeTam2::NotTam2((Profession::Io, absolute::Side::IASide))
-        } else if s <= 48 {
-            MaybeTam2::NotTam2((Profession::Nuak1, absolute::Side::IASide))
-        } else if s == 49 {
-            MaybeTam2::Tam2
-        } else if s <= 128 | 16 {
-            MaybeTam2::NotTam2((Profession::Kauk2, absolute::Side::ASide))
-        } else if s <= 128 | 20 {
-            MaybeTam2::NotTam2((Profession::Gua2, absolute::Side::ASide))
-        } else if s <= 128 | 24 {
-            MaybeTam2::NotTam2((Profession::Kaun1, absolute::Side::ASide))
-        } else if s <= 128 | 28 {
-            MaybeTam2::NotTam2((Profession::Dau2, absolute::Side::ASide))
-        } else if s <= 128 | 32 {
-            MaybeTam2::NotTam2((Profession::Maun1, absolute::Side::ASide))
-        } else if s <= 128 | 36 {
-            MaybeTam2::NotTam2((Profession::Kua2, absolute::Side::ASide))
-        } else if s <= 128 | 40 {
-            MaybeTam2::NotTam2((Profession::Tuk2, absolute::Side::ASide))
-        } else if s <= 128 | 44 {
-            MaybeTam2::NotTam2((Profession::Uai1, absolute::Side::ASide))
-        } else if s <= 128 | 46 {
-            MaybeTam2::NotTam2((Profession::Io, absolute::Side::ASide))
+        if self.is_tam2() {
+            return MaybeTam2::Tam2;
+        }
+        let s = if self.0.get() & 0o300 == 0o100 {
+            absolute::Side::IASide
         } else {
-            MaybeTam2::NotTam2((Profession::Nuak1, absolute::Side::ASide))
+            absolute::Side::ASide
+        };
+        let p = self.0.get() & 0o77;
+        if p < 16 {
+            MaybeTam2::NotTam2((Profession::Kauk2, s))
+        } else if p < 20 {
+            MaybeTam2::NotTam2((Profession::Gua2, s))
+        } else if p < 24 {
+            MaybeTam2::NotTam2((Profession::Kaun1, s))
+        } else if p < 28 {
+            MaybeTam2::NotTam2((Profession::Dau2, s))
+        } else if p < 32 {
+            MaybeTam2::NotTam2((Profession::Maun1, s))
+        } else if p < 36 {
+            MaybeTam2::NotTam2((Profession::Kua2, s))
+        } else if p < 40 {
+            MaybeTam2::NotTam2((Profession::Tuk2, s))
+        } else if p < 44 {
+            MaybeTam2::NotTam2((Profession::Uai1, s))
+        } else if p < 46 {
+            MaybeTam2::NotTam2((Profession::Io, s))
+        } else {
+            MaybeTam2::NotTam2((Profession::Nuak1, s))
         }
     }
-    pub const fn side(self) -> MaybeTam2<absolute::Side> {
-        if self.0.get() == 49 {
-            MaybeTam2::Tam2
-        } else if self.0.get() > 127 {
-            MaybeTam2::NotTam2(absolute::Side::ASide)
-        } else {
-            MaybeTam2::NotTam2(absolute::Side::IASide)
+
+    /// Inverts side, but also swaps an empty space into Tam2 and vice versa
+    ///
+    /// ```
+    /// use cetkaik_compact_representation::PieceWithSide;
+    /// let a = PieceWithSide::new(0o240).unwrap();
+    /// assert_eq!(a.to_string(), "↓黒筆");
+    /// let b = PieceWithSide::invert_side_with_tam_entangled(Some(a)).unwrap();
+    /// assert_eq!(b.to_string(), "↑黒筆");
+    ///
+    /// let c = PieceWithSide::invert_side_with_tam_entangled(None).unwrap();
+    /// assert_eq!(c.to_string(), "皇");
+    /// ```
+    pub const fn invert_side_with_tam_entangled(s: Option<Self>) -> Option<Self> {
+        unsafe {
+            let s = std::mem::transmute::<Option<Self>, u8>(s);
+            std::mem::transmute::<u8, Option<Self>>(s ^ 0o300)
         }
     }
-    pub const fn invert_side(self) -> Self {
-        // safety: self is never 128
-        unsafe { PieceWithSide::new_unchecked(self.0.get() ^ 128) }
+
+    /// Inverts side; returns `None` if `Tam2` is passed.
+    /// ```
+    /// use cetkaik_compact_representation::PieceWithSide;
+    /// let a = PieceWithSide::new(0o240).unwrap();
+    /// assert_eq!(a.to_string(), "↓黒筆");
+    /// let b = a.invert_side().unwrap();
+    /// assert_eq!(b.to_string(), "↑黒筆");
+    ///
+    /// let c = PieceWithSide::new(0o300).unwrap();
+    /// assert_eq!(c.to_string(), "皇");
+    /// assert_eq!(c.invert_side(), None);
+    /// ```
+    pub const fn invert_side(self) -> Option<Self> {
+        PieceWithSide::invert_side_with_tam_entangled(Some(self))
     }
 }
 
@@ -143,11 +154,10 @@ impl std::fmt::Display for PieceWithSide {
         }
     }
 }
-use bitvec::prelude::*;
 
 /// どちらにも属していなければ 0 を、IA 側は 1 を、A 側は 2 を
 #[derive(Copy, Clone, Debug)]
-pub struct Hop1zuo1(BitArr!(for 96, in u8));
+pub struct Hop1zuo1([u8; 12]);
 
 #[derive(Copy, Clone, Debug)]
 pub struct Field {
@@ -161,20 +171,21 @@ impl Field {
         match (self.board.pop(from), self.board.pop(to)) {
             (Some(src_piece), Some(dst_piece)) => {
                 self.board.put(to, Some(src_piece));
-                self.hop1zuo1.set(dst_piece.invert_side(), true)
+                self.hop1zuo1
+                    .set(dst_piece.invert_side().expect("Cannot take Tam2"))
             }
             _ => panic!("Empty square encountered at either {:?} or {:?}", from, to),
         }
     }
     pub fn from_hop1zuo1(&mut self, p: PieceWithSide, to: Coord) {
         assert!(
-            self.hop1zuo1.read(p),
+            self.hop1zuo1.exists(p),
             "cannot place {:?} ({}) because it is not in hop1zuo1",
             p,
             p
         );
 
-        self.hop1zuo1.set(p, false);
+        self.hop1zuo1.clear(p);
         self.board.put(to, Some(p))
     }
 }
@@ -271,44 +282,32 @@ impl Board {
         Board(unsafe {
             std::mem::transmute::<[[u8; 9]; 9], [SingleRow; 9]>([
                 [
-                    128 | 35,
-                    128 | 31,
-                    128 | 23,
-                    128 | 43,
-                    128 | 46,
-                    128 | 44,
-                    128 | 24,
-                    128 | 32,
-                    128 | 36,
+                    0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227, 0o237, 0o243,
                 ],
                 [
-                    128 | 40,
-                    128 | 20,
-                    0,
-                    128 | 28,
-                    0,
-                    128 | 27,
-                    0,
-                    128 | 19,
-                    128 | 39,
+                    0o247, 0o223, 0o000, 0o233, 0o000, 0o232, 0o000, 0o222, 0o246,
                 ],
                 [
-                    128 | 9,
-                    128 | 10,
-                    128 | 11,
-                    128 | 12,
-                    128 | 48,
-                    128 | 16,
-                    128 | 15,
-                    128 | 14,
-                    128 | 13,
+                    0o210, 0o211, 0o212, 0o213, 0o257, 0o217, 0o216, 0o215, 0o214,
                 ],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 49, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 2, 3, 4, 47, 8, 7, 6, 5],
-                [37, 17, 0, 25, 0, 26, 0, 18, 38],
-                [34, 30, 22, 42, 45, 41, 21, 29, 33],
+                [
+                    0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000,
+                ],
+                [
+                    0o000, 0o000, 0o000, 0o000, 0o300, 0o000, 0o000, 0o000, 0o000,
+                ],
+                [
+                    0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000, 0o000,
+                ],
+                [
+                    0o100, 0o101, 0o102, 0o103, 0o156, 0o107, 0o106, 0o105, 0o104,
+                ],
+                [
+                    0o144, 0o120, 0o000, 0o130, 0o000, 0o131, 0o000, 0o121, 0o145,
+                ],
+                [
+                    0o141, 0o135, 0o125, 0o151, 0o154, 0o150, 0o124, 0o134, 0o140,
+                ],
             ])
         })
     }
@@ -360,36 +359,79 @@ impl Default for Hop1zuo1 {
 }
 
 impl Hop1zuo1 {
-    pub fn new() -> Self {
-        Hop1zuo1(BitArray::ZERO)
+    pub const fn new() -> Self {
+        Hop1zuo1([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     }
-    pub fn set(&mut self, p: PieceWithSide, flag: bool) {
-        let side = p.side();
-        let index = ((p.0.get() & 127) - 1) as usize;
-        match side {
-            MaybeTam2::NotTam2(cetkaik_core::absolute::Side::IASide) => {
-                self.0.set(index * 2 + 1, flag)
-            }
-            MaybeTam2::NotTam2(cetkaik_core::absolute::Side::ASide) => self.0.set(index * 2, flag),
-            _ => {
-                panic!("Tried to put Tam2 into hop1zuo1")
-            }
+    pub fn set(&mut self, p: PieceWithSide) {
+        let u8 = p.0.get();
+        assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
+        if u8 == 0o300 {
+            panic!("Tried to set Tam2 into Hop1zuo1")
         }
+        assert!(!self.exists(p));
+        unsafe { self.set_unchecked(p) }
     }
-    pub fn read(&mut self, p: PieceWithSide) -> bool {
-        let side = p.side();
-        let index = ((p.0.get() & 127) - 1) as usize;
-        match side {
-            MaybeTam2::NotTam2(cetkaik_core::absolute::Side::IASide) => {
-                *self.0.get(index * 2 + 1).unwrap()
-            }
-            MaybeTam2::NotTam2(cetkaik_core::absolute::Side::ASide) => {
-                *self.0.get(index * 2).unwrap()
-            }
-            _ => {
-                panic!("Tried to erase Tam2 into hop1zuo1")
-            }
+
+    /// # Safety
+    /// assumes that `p` is valid and not Tam2
+    pub unsafe fn set_unchecked(&mut self, p: PieceWithSide) {
+        let u8 = p.0.get();
+
+        // M      L
+        // xxxxxxxx
+        // SdIndxBp
+        let side = u8 >> 6;
+        let index = (u8 & 0o77) >> 2;
+        let bit_position = (u8 & 0o03) * 2;
+
+        *self.0.get_unchecked_mut(index as usize) |= side << bit_position;
+    }
+    pub fn clear(&mut self, p: PieceWithSide) {
+        let u8 = p.0.get();
+
+        assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
+        if u8 == 0o300 {
+            panic!("Tried to set Tam2 into Hop1zuo1")
         }
+        assert!(self.exists(p));
+        unsafe { self.clear_unchecked(p) }
+    }
+
+    /// # Safety
+    /// assumes that `p` is valid and not Tam2
+    pub unsafe fn clear_unchecked(&mut self, p: PieceWithSide) {
+        let u8 = p.0.get();
+
+        // M      L
+        // xxxxxxxx
+        // SdIndxBp
+        let _side = u8 >> 6;
+        let index = (u8 & 0o77) >> 2;
+        let bit_position = (u8 & 0o03) * 2;
+
+        *self.0.get_unchecked_mut(index as usize) &= !(3 << bit_position);
+    }
+    pub fn exists(&mut self, p: PieceWithSide) -> bool {
+        let u8 = p.0.get();
+        assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
+        if u8 == 0o300 {
+            panic!("Tried to set Tam2 into Hop1zuo1")
+        }
+        unsafe { self.exists_unchecked(p) }
+    }
+
+    /// # Safety
+    /// assumes that `p` is valid and not Tam2
+    pub unsafe fn exists_unchecked(&mut self, p: PieceWithSide) -> bool {
+        let u8 = p.0.get();
+
+        // M      L
+        // xxxxxxxx
+        // SdIndxBp
+        let side = u8 >> 6;
+        let index = (u8 & 0o77) >> 2;
+        let bit_position = (u8 & 0o03) * 2;
+        0 != (*self.0.get_unchecked(index as usize) & (side << bit_position))
     }
 }
 
@@ -423,9 +465,11 @@ mod tests {
     #[test]
     fn hop1zuo1_get_set() {
         let mut h = Hop1zuo1::new();
-        let p = PieceWithSide::new(20).unwrap();
-        h.set(p, true);
-        assert!(h.read(p))
+        let p = PieceWithSide::new(0o150).unwrap();
+        h.set(p);
+        assert!(h.exists(p));
+        h.clear(p);
+        assert!(!h.exists(p))
     }
 
     #[test]
