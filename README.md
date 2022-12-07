@@ -1,0 +1,2 @@
+# cetkaik_compact_representation
+机戦の盤面をコンパクトに格納する
