@@ -49,13 +49,9 @@ Field は、Board に手駒情報を加えたものであり、手駒情報は 9
 
 
 #### 具体例
-![](20220617_161810.jpg)
+<img src="https://raw.githubusercontent.com/cetkaik/cetkaik_compact_representation/main/20220617_161810.jpg" height="600"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/cetkaik/cetkaik_compact_representation/main/piece_number_to_flag.png" height="600"> 
 
-これは、ASide の赤虎 (0o233)・赤弓 (0o223)・赤兵 (0o217)・赤船 (0o257)・黒虎 (0o232) が IASide の手駒に移っており、IASide の黒兵 (0o102)・赤兵 (0o107)・黒船 (0o156)・赤巫 (0o145)・赤馬 (0o135) が ASide の手駒に移っているので、
-
-![](piece_number_to_flag.png)
-
-であり、
+上図では、ASide の赤虎 (0o233)・赤弓 (0o223)・赤兵 (0o217)・赤船 (0o257)・黒虎 (0o232) が IASide の手駒に移っており、IASide の黒兵 (0o102)・赤兵 (0o107)・黒船 (0o156)・赤巫 (0o145)・赤馬 (0o135) が ASide の手駒に移っている。よって、上図をそのままビット列に落とした
 
 ```
 [
@@ -68,5 +64,5 @@ Field は、Board に手駒情報を加えたものであり、手駒情報は 9
 ]
 ```
 
-となる。
+が、`unsafe { std::mem::transmute::<Hop1zuo1, [u8; 12]>(hop1zuo1) }` の結果となる。
 
