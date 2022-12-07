@@ -382,7 +382,7 @@ impl Hop1zuo1 {
         // SdIndxBp
         let side = u8 >> 6;
         let index = (u8 & 0o77) >> 2;
-        let bit_position = (u8 & 0o03) * 2;
+        let bit_position = 6 - (u8 & 0o03) * 2;
 
         *self.0.get_unchecked_mut(index as usize) |= side << bit_position;
     }
@@ -407,7 +407,7 @@ impl Hop1zuo1 {
         // SdIndxBp
         let _side = u8 >> 6;
         let index = (u8 & 0o77) >> 2;
-        let bit_position = (u8 & 0o03) * 2;
+        let bit_position = 6 - (u8 & 0o03) * 2;
 
         *self.0.get_unchecked_mut(index as usize) &= !(3 << bit_position);
     }
@@ -430,7 +430,7 @@ impl Hop1zuo1 {
         // SdIndxBp
         let side = u8 >> 6;
         let index = (u8 & 0o77) >> 2;
-        let bit_position = (u8 & 0o03) * 2;
+        let bit_position = 6 - (u8 & 0o03) * 2;
         0 != (*self.0.get_unchecked(index as usize) & (side << bit_position))
     }
 }
@@ -470,6 +470,33 @@ mod tests {
         assert!(h.exists(p));
         h.clear(p);
         assert!(!h.exists(p))
+    }
+
+    #[test]
+    fn hop1zuo1_set_and_transmute() {
+        let mut h = Hop1zuo1::new();
+        h.set(PieceWithSide::new(0o133).unwrap());
+        h.set(PieceWithSide::new(0o123).unwrap());
+        h.set(PieceWithSide::new(0o117).unwrap());
+        h.set(PieceWithSide::new(0o157).unwrap());
+        h.set(PieceWithSide::new(0o132).unwrap());
+        h.set(PieceWithSide::new(0o202).unwrap());
+        h.set(PieceWithSide::new(0o207).unwrap());
+        h.set(PieceWithSide::new(0o256).unwrap());
+        h.set(PieceWithSide::new(0o245).unwrap());
+        h.set(PieceWithSide::new(0o235).unwrap());
+        let content = unsafe { std::mem::transmute::<Hop1zuo1, [u8; 12]>(h) };
+        assert_eq!(
+            content,
+            [
+                0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+                0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+                0b00000001, /* 弓 */ 0b00000000, /* 車 */
+                0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+                0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+                0b00000000, /* 将 */ 0b00001001 /* 王と船 */
+            ]
+        );
     }
 
     #[test]
