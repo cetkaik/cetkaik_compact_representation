@@ -4,10 +4,10 @@
 <svg
    version="1.1"
    id="svg2"
-   width="619.84436"
-   height="2014.3706"
-   viewBox="0 0 619.84439 2014.3707"
-   sodipodi:docname="piece_number_flag.svg.2022_12_08_02_24_31.0.svg"
+   width="659.84399"
+   height="2103.9839"
+   viewBox="0 0 659.84402 2103.984"
+   sodipodi:docname="piece_number_to_flag.svg"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    inkscape:export-filename="piece_number_to_flag.png"
    inkscape:export-xdpi="300"
@@ -18,6 +18,12 @@
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
      id="defs6">
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect1888" />
     <rect
        x="1468.653"
        y="109.79422"
@@ -144,6 +150,42 @@
        width="209.03737"
        height="75.490486"
        id="rect20840" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2008" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2014" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2020" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2026" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2032" />
+    <rect
+       x="1.4622343"
+       y="264.37061"
+       width="618.3822"
+       height="64.242165"
+       id="rect2038" />
   </defs>
   <sodipodi:namedview
      id="namedview4"
@@ -155,20 +197,27 @@
      inkscape:pagecheckerboard="true"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.25638078"
-     inkscape:cx="-813.24349"
-     inkscape:cy="641.62376"
-     inkscape:window-width="958"
-     inkscape:window-height="991"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:zoom="1.0255231"
+     inkscape:cx="250.11625"
+     inkscape:cy="1794.6938"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
      inkscape:current-layer="g8" />
   <g
      id="g8"
      inkscape:groupmode="layer"
      inkscape:label="2022 (2)"
-     transform="matrix(1.3333333,0,0,1.3333333,-397.04154,297.0416)">
+     transform="matrix(1.3333333,0,0,1.3333333,-377.04154,317.0416)">
+    <rect
+       style="fill:#e3e3e3;fill-opacity:1;stroke-width:3.18332;stroke-linecap:round"
+       id="rect757"
+       width="494.88303"
+       height="1577.988"
+       x="282.78116"
+       y="-237.7812" />
     <g
        id="g12"
        transform="rotate(-90,468.23447,358.95565)">
@@ -2154,35 +2203,35 @@
        id="text6811"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect6813);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15050">
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15052">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15054">0o202
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15056">
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15058">
 </tspan><tspan
          x="730.87891"
-         y="700.02168"
+         y="700.02167"
          id="tspan15060">
 </tspan><tspan
          x="730.87891"
-         y="778.35506"
+         y="778.35504"
          id="tspan15062">
 </tspan><tspan
          x="730.87891"
-         y="856.68843"
+         y="856.68842"
          id="tspan15064">0o207</tspan></text>
     <text
        xml:space="preserve"
@@ -2195,35 +2244,35 @@
        id="text1640"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1642);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15066">
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15068">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15070">
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15072">
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15074">
 </tspan><tspan
          x="730.87891"
-         y="700.02168"
+         y="700.02167"
          id="tspan15076">
 </tspan><tspan
          x="730.87891"
-         y="778.35506"
+         y="778.35504"
          id="tspan15078">
 </tspan><tspan
          x="730.87891"
-         y="856.68843"
+         y="856.68842"
          id="tspan15080">0o117</tspan></text>
     <text
        xml:space="preserve"
@@ -2231,23 +2280,23 @@
        id="text2906"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2908);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15082">
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15084">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15086">
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15088">0o123
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15090">
 </tspan></text>
     <text
@@ -2256,31 +2305,31 @@
        id="text3542"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect3544);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15092"> 
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15094">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15096">0o132
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15098">0o133
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15100">
 </tspan><tspan
          x="730.87891"
-         y="700.02168"
+         y="700.02167"
          id="tspan15102">0o235
 </tspan><tspan
          x="730.87891"
-         y="778.35506"
+         y="778.35504"
          id="tspan15104">
 </tspan></text>
     <text
@@ -2289,27 +2338,27 @@
        id="text4812"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect4814);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15106">
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15108">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15110">
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15112">
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15114">
 </tspan><tspan
          x="730.87891"
-         y="700.02168"
+         y="700.02167"
          id="tspan15116">0o245
 </tspan></text>
     <text
@@ -2318,38 +2367,38 @@
        id="text5450"
        style="font-style:normal;font-weight:normal;font-size:62.6667px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect5452);display:inline;fill:#000000;fill-opacity:1;stroke:none"><tspan
          x="730.87891"
-         y="308.35481"
+         y="308.3548"
          id="tspan15118">
 </tspan><tspan
          x="730.87891"
-         y="386.68819"
+         y="386.6882"
          id="tspan15120">
 </tspan><tspan
          x="730.87891"
-         y="465.02156"
+         y="465.02155"
          id="tspan15122">
 </tspan><tspan
          x="730.87891"
-         y="543.35493"
+         y="543.35492"
          id="tspan15124">
 </tspan><tspan
          x="730.87891"
-         y="621.68831"
+         y="621.68829"
          id="tspan15126">
 </tspan><tspan
          x="730.87891"
-         y="700.02168"
+         y="700.02167"
          id="tspan15128">
 </tspan><tspan
          x="730.87891"
-         y="778.35506"
+         y="778.35504"
          id="tspan15130">0o256
 </tspan><tspan
          x="730.87891"
-         y="856.68843"
+         y="856.68842"
          id="tspan15132">0o157</tspan></text>
     <rect
-       style="fill:#666666;stroke-width:3.0189;stroke-linecap:round;fill-opacity:0.77987421"
+       style="fill:#666666;fill-opacity:0.779874;stroke-width:3.0189;stroke-linecap:round"
        id="rect1643"
        width="347.246"
        height="56.695"
@@ -2425,5 +2474,68 @@
        height="57.735466"
        x="298.87784"
        y="-82.238708" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78116,-222.78121)"
+       id="text1886"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1888);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan1942">00 00 10 00 00 00 00 10</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78116,-222.78121)"
+       id="text2006"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2008);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2004">00 00 10 00 00 00 00 10</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78113,39.718723)"
+       id="text2012"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2014);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2010">00 00 00 00 00 00 00 01</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78113,300.79373)"
+       id="text2018"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2020);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2016">00 00 00 01 00 00 00 00</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78113,563.29374)"
+       id="text2024"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2026);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2022">00 00 01 01 00 10 00 00</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78113,825.79374)"
+       id="text2030"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2032);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2028">00 00 00 00 00 10 00 00</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.75000002,0,0,0.75000002,297.78113,1088.2937)"
+       id="text2036"
+       style="font-style:normal;font-weight:normal;font-size:56px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2038);display:inline;fill:#535353;fill-opacity:1;stroke:none"
+       x="126.1921"
+       y="0"><tspan
+         style="font-size:56px;text-align:center;text-anchor:middle;fill:#535353;fill-opacity:1"
+         id="tspan2034">00 00 00 00 00 00 10 01</tspan></text>
   </g>
 </svg>
