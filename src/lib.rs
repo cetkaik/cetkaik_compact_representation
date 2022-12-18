@@ -15,6 +15,15 @@ pub enum MaybeTam2<T> {
     NotTam2(T),
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub enum Perspective {
+    /// IA is the lowermost row;
+    /// the player who had occupied the IA row in the beginning of the game has pieces that point upward
+    /// (i.e. you)
+    /// ／IAは一番下の行であり、初期状態でIA行を占有していたプレイヤーは駒が上向き（=あなた）である。
+    IaIsDownAndPointsUpward
+}
+
 impl PieceWithSide {
     pub fn new(u: u8) -> Option<Self> {
         if (0o100..=0o157).contains(&u) || (0o200..=0o257).contains(&u) || 0o300 == u {
