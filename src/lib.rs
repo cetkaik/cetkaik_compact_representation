@@ -208,15 +208,11 @@ impl Coord {
         }
     }
     pub const fn add_delta(self, row_delta: isize, col_delta: isize) -> Option<Self> {
-        const fn bound(k: isize) -> Option<usize> {
-            if 0 <= k && k < 9 {
-                Some(k as usize)
-            } else {
-                None
-            }
-        }
         const fn add(base: usize, delta: isize) -> Option<usize> {
-            bound(base as isize + delta)
+            match base.checked_add_signed(delta) {
+                a @ Some(0..=8) => a,
+                _ => None,
+            }
         }
         //  `?` is not allowed in a `const fn`
         match (
