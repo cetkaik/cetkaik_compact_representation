@@ -474,7 +474,7 @@ impl Hop1zuo1 {
 
     /// # Safety
     /// assumes that `p` is valid and not Tam2
-    pub unsafe fn exists_unchecked(&mut self, p: PieceWithSide) -> bool {
+    pub unsafe fn exists_unchecked(&self, p: PieceWithSide) -> bool {
         let u8 = p.0.get();
 
         // M      L
@@ -485,7 +485,118 @@ impl Hop1zuo1 {
         let bit_position = 6 - (u8 & 0o03) * 2;
         0 != (*self.0.get_unchecked(index as usize) & (side << bit_position))
     }
+
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.both_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o202).unwrap(),
+    ///           PieceWithSide::new(0o207).unwrap(),
+    ///           PieceWithSide::new(0o117).unwrap(),
+    ///           PieceWithSide::new(0o123).unwrap(),
+    ///           PieceWithSide::new(0o132).unwrap(),
+    ///           PieceWithSide::new(0o133).unwrap(),
+    ///           PieceWithSide::new(0o235).unwrap(),
+    ///           PieceWithSide::new(0o245).unwrap(),
+    ///           PieceWithSide::new(0o256).unwrap(),
+    ///           PieceWithSide::new(0o157).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn both_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        BothHop1Zuo1 { h: self.0, i: 0 }
+    }
+
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.ia_side_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o117).unwrap(),
+    ///           PieceWithSide::new(0o123).unwrap(),
+    ///           PieceWithSide::new(0o132).unwrap(),
+    ///           PieceWithSide::new(0o133).unwrap(),
+    ///           PieceWithSide::new(0o157).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn ia_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        IASideHop1Zuo1 { h: self.0, i: 0 }
+    }
+
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.a_side_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o202).unwrap(),
+    ///           PieceWithSide::new(0o207).unwrap(),
+    ///           PieceWithSide::new(0o235).unwrap(),
+    ///           PieceWithSide::new(0o245).unwrap(),
+    ///           PieceWithSide::new(0o256).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn a_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        ASideHop1Zuo1 { h: self.0, i: 0 }
+    }
 }
+struct BothHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
+}
+
+struct IASideHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
+}
+
+struct ASideHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
+}
+
+pub mod iter;
 
 #[cfg(test)]
 mod tests {
@@ -564,6 +675,7 @@ mod tests {
             ])
         };
 
+        // existence
         assert!(h.exists(PieceWithSide::new(0o133).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o123).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o117).unwrap()));
@@ -574,10 +686,22 @@ mod tests {
         assert!(h.exists(PieceWithSide::new(0o256).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o245).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o235).unwrap()));
+
+        // non-existence
+        assert!(!h.exists(PieceWithSide::new(0o233).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o223).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o217).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o257).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o232).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o102).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o107).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o156).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o145).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o135).unwrap()));
     }
 
     #[test]
-    fn it_works() {
+    fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
     }
 }
