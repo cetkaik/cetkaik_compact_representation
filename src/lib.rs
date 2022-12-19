@@ -552,6 +552,31 @@ mod tests {
     }
 
     #[test]
+    fn hop1zuo1_transmute_and_get() {
+        let mut h = unsafe {
+            std::mem::transmute::<[u8; 12], Hop1zuo1>([
+                0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+                0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+                0b00000001, /* 弓 */ 0b00000000, /* 車 */
+                0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+                0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+                0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+            ])
+        };
+
+        assert!(h.exists(PieceWithSide::new(0o133).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o123).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o117).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o157).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o132).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o202).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o207).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o256).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o245).unwrap()));
+        assert!(h.exists(PieceWithSide::new(0o235).unwrap()));
+    }
+
+    #[test]
     fn it_works() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
     }
