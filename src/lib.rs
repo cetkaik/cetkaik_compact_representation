@@ -526,7 +526,7 @@ impl Hop1zuo1 {
     ///   )
     /// ```
     pub fn both_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
-        BothHop1Zuo1 { h: self.0, i: 0 }
+        BothHop1Zuo1Iter { h: self.0, i: 0 }
     }
 
     /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
@@ -556,7 +556,37 @@ impl Hop1zuo1 {
     ///   )
     /// ```
     pub fn ia_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
-        IASideHop1Zuo1 { h: self.0, i: 0 }
+        IASideHop1Zuo1Iter { h: self.0, i: 0 }
+    }
+
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// use cetkaik_core::{Color, Profession};
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.ia_side_hop1zuo1_color_and_prof().collect::<Vec<_>>(),
+    ///       vec![
+    ///           (Color::Kok1, Profession::Kauk2),
+    ///           (Color::Kok1, Profession::Gua2),
+    ///           (Color::Huok2, Profession::Dau2),
+    ///           (Color::Kok1, Profession::Dau2),
+    ///           (Color::Kok1, Profession::Nuak1),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn ia_side_hop1zuo1_color_and_prof(self) -> impl Iterator<Item = (Color, Profession)> {
+        IASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 
     /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
@@ -586,20 +616,60 @@ impl Hop1zuo1 {
     ///   )
     /// ```
     pub fn a_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
-        ASideHop1Zuo1 { h: self.0, i: 0 }
+        ASideHop1Zuo1Iter { h: self.0, i: 0 }
+    }
+
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// use cetkaik_core::{Color, Profession};
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.a_side_hop1zuo1_color_and_prof().collect::<Vec<_>>(),
+    ///       vec![
+    ///           (Color::Huok2, Profession::Kauk2),
+    ///           (Color::Kok1, Profession::Kauk2),
+    ///           (Color::Kok1, Profession::Maun1),
+    ///           (Color::Kok1, Profession::Tuk2),
+    ///           (Color::Huok2, Profession::Nuak1),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn a_side_hop1zuo1_color_and_prof(self) -> impl Iterator<Item = (Color, Profession)> {
+        ASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 }
-struct BothHop1Zuo1 {
+struct BothHop1Zuo1Iter {
     i: u8,
     h: [u8; 12],
 }
 
-struct IASideHop1Zuo1 {
+struct IASideHop1Zuo1Iter {
     i: u8,
     h: [u8; 12],
 }
 
-struct ASideHop1Zuo1 {
+struct ASideHop1Zuo1Iter {
+    i: u8,
+    h: [u8; 12],
+}
+
+struct IASideHop1Zuo1IterWithColorAndProf {
+    i: u8,
+    h: [u8; 12],
+}
+
+struct ASideHop1Zuo1IterWithColorAndProf {
     i: u8,
     h: [u8; 12],
 }
