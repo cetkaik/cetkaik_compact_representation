@@ -489,11 +489,18 @@ impl Hop1zuo1 {
 
 fn hop1zuo1_both(h: Hop1zuo1) -> Vec<PieceWithSide> {
     let mut ans = vec![];
-    for i in 0o00..=0o57 {
+
+    for i in 0o00..0o60 {
+        let index = i >> 2;
+        let bit_position = 6 - (i & 0o03) * 2;
         unsafe {
-            if h.exists_unchecked(PieceWithSide::new_unchecked(i | 0o100)) {
+            let byte = *h.0.get_unchecked(index as usize);
+
+            if 0 != (byte & (1 << bit_position)) {
                 ans.push(PieceWithSide::new_unchecked(i | 0o100))
-            } else if h.exists_unchecked(PieceWithSide::new_unchecked(i | 0o200)) {
+            }
+
+            if 0 != (byte & (2 << bit_position)) {
                 ans.push(PieceWithSide::new_unchecked(i | 0o200))
             }
         }
@@ -602,7 +609,7 @@ mod tests {
         assert!(!h.exists(PieceWithSide::new(0o145).unwrap()));
         assert!(!h.exists(PieceWithSide::new(0o135).unwrap()));
     }
-    
+
     #[test]
     fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
