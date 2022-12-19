@@ -520,43 +520,83 @@ impl Hop1zuo1 {
     pub fn both_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
         BothHop1Zuo1 { h: self.0, i: 0 }
     }
-}
 
-pub struct BothHop1Zuo1 {
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.ia_side_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o117).unwrap(),
+    ///           PieceWithSide::new(0o123).unwrap(),
+    ///           PieceWithSide::new(0o132).unwrap(),
+    ///           PieceWithSide::new(0o133).unwrap(),
+    ///           PieceWithSide::new(0o157).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn ia_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        IASideHop1Zuo1 { h: self.0, i: 0 }
+    }
+
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.a_side_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o202).unwrap(),
+    ///           PieceWithSide::new(0o207).unwrap(),
+    ///           PieceWithSide::new(0o235).unwrap(),
+    ///           PieceWithSide::new(0o245).unwrap(),
+    ///           PieceWithSide::new(0o256).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn a_side_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        ASideHop1Zuo1 { h: self.0, i: 0 }
+    }
+}
+struct BothHop1Zuo1 {
     i: u8,
     h: [u8; 12],
 }
 
-impl Iterator for BothHop1Zuo1 {
-    type Item = PieceWithSide;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        let index = self.i >> 2;
-        let bit_position = 6 - (self.i & 0o03) * 2;
-        unsafe {
-            let byte = *self.h.get_unchecked(index as usize);
-
-            if 0 != (byte & (1 << bit_position)) {
-                let item = Some(PieceWithSide::new_unchecked(self.i | 0o100));
-                self.i += 1;
-                return item;
-            }
-
-            if 0 != (byte & (2 << bit_position)) {
-                let item = Some(PieceWithSide::new_unchecked(self.i | 0o200));
-                self.i += 1;
-                return item;
-            }
-        }
-        self.i += 1;
-
-        if self.i >= 0o60 {
-            return None;
-        }
-        self.next()
-    }
+struct IASideHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
 }
+
+struct ASideHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
+}
+
+pub mod iter;
 
 #[cfg(test)]
 mod tests {
