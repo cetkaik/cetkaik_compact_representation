@@ -295,6 +295,23 @@ impl Coord {
                     col_index: 6,
                 }
     }
+
+    #[allow(clippy::nonminimal_bool)]
+    pub const fn is_water(coord: Self) -> bool {
+        let Self {
+            row_index: row,
+            col_index: col,
+        } = coord;
+        (row == 4 && col == 2)
+            || (row == 4 && col == 3)
+            || (row == 4 && col == 4)
+            || (row == 4 && col == 5)
+            || (row == 4 && col == 6)
+            || (row == 2 && col == 4)
+            || (row == 3 && col == 4)
+            || (row == 5 && col == 4)
+            || (row == 6 && col == 4)
+    }
 }
 
 impl std::fmt::Display for Coord {
