@@ -199,7 +199,7 @@ impl Field {
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Coord {
     row_index: usize,
     col_index: usize,
