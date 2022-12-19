@@ -485,27 +485,77 @@ impl Hop1zuo1 {
         let bit_position = 6 - (u8 & 0o03) * 2;
         0 != (*self.0.get_unchecked(index as usize) & (side << bit_position))
     }
+
+    /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// let h = unsafe {
+    ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
+    ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+    ///           0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+    ///           0b00000001, /* 弓 */ 0b00000000, /* 車 */
+    ///           0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+    ///           0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+    ///           0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+    ///       ])
+    ///   };
+    ///
+    ///   assert_eq!(
+    ///       h.both_hop1zuo1().collect::<Vec<_>>(),
+    ///       vec![
+    ///           PieceWithSide::new(0o202).unwrap(),
+    ///           PieceWithSide::new(0o207).unwrap(),
+    ///           PieceWithSide::new(0o117).unwrap(),
+    ///           PieceWithSide::new(0o123).unwrap(),
+    ///           PieceWithSide::new(0o132).unwrap(),
+    ///           PieceWithSide::new(0o133).unwrap(),
+    ///           PieceWithSide::new(0o235).unwrap(),
+    ///           PieceWithSide::new(0o245).unwrap(),
+    ///           PieceWithSide::new(0o256).unwrap(),
+    ///           PieceWithSide::new(0o157).unwrap(),
+    ///       ]
+    ///   )
+    /// ```
+    pub fn both_hop1zuo1(self) -> impl Iterator<Item = PieceWithSide> {
+        BothHop1Zuo1 { h: self.0, i: 0 }
+    }
 }
 
-fn hop1zuo1_both(h: Hop1zuo1) -> Vec<PieceWithSide> {
-    let mut ans = vec![];
+pub struct BothHop1Zuo1 {
+    i: u8,
+    h: [u8; 12],
+}
 
-    for i in 0o00..0o60 {
-        let index = i >> 2;
-        let bit_position = 6 - (i & 0o03) * 2;
+impl Iterator for BothHop1Zuo1 {
+    type Item = PieceWithSide;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        let index = self.i >> 2;
+        let bit_position = 6 - (self.i & 0o03) * 2;
         unsafe {
-            let byte = *h.0.get_unchecked(index as usize);
+            let byte = *self.h.get_unchecked(index as usize);
 
             if 0 != (byte & (1 << bit_position)) {
-                ans.push(PieceWithSide::new_unchecked(i | 0o100))
+                let item = Some(PieceWithSide::new_unchecked(self.i | 0o100));
+                self.i += 1;
+                return item;
             }
 
             if 0 != (byte & (2 << bit_position)) {
-                ans.push(PieceWithSide::new_unchecked(i | 0o200))
+                let item = Some(PieceWithSide::new_unchecked(self.i | 0o200));
+                self.i += 1;
+                return item;
             }
         }
+        self.i += 1;
+
+        if self.i >= 0o60 {
+            return None;
+        }
+        self.next()
     }
-    ans
 }
 
 #[cfg(test)]
@@ -613,35 +663,5 @@ mod tests {
     #[test]
     fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
-    }
-
-    #[test]
-    fn check_hop1zuo1_iteration() {
-        let h = unsafe {
-            std::mem::transmute::<[u8; 12], Hop1zuo1>([
-                0b00001000, /* 兵 */ 0b00000010, /* 兵 */
-                0b00000000, /* 兵 */ 0b00000001, /* 兵 */
-                0b00000001, /* 弓 */ 0b00000000, /* 車 */
-                0b00000101, /* 虎 */ 0b00100000, /* 馬 */
-                0b00000000, /* 筆 */ 0b00100000, /* 巫 */
-                0b00000000, /* 将 */ 0b00001001, /* 王と船 */
-            ])
-        };
-
-        assert_eq!(
-            hop1zuo1_both(h),
-            vec![
-                PieceWithSide::new(0o202).unwrap(),
-                PieceWithSide::new(0o207).unwrap(),
-                PieceWithSide::new(0o117).unwrap(),
-                PieceWithSide::new(0o123).unwrap(),
-                PieceWithSide::new(0o132).unwrap(),
-                PieceWithSide::new(0o133).unwrap(),
-                PieceWithSide::new(0o235).unwrap(),
-                PieceWithSide::new(0o245).unwrap(),
-                PieceWithSide::new(0o256).unwrap(),
-                PieceWithSide::new(0o157).unwrap(),
-            ]
-        )
     }
 }
