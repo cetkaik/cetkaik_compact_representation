@@ -578,6 +578,7 @@ mod tests {
             ])
         };
 
+        // existence
         assert!(h.exists(PieceWithSide::new(0o133).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o123).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o117).unwrap()));
@@ -588,8 +589,20 @@ mod tests {
         assert!(h.exists(PieceWithSide::new(0o256).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o245).unwrap()));
         assert!(h.exists(PieceWithSide::new(0o235).unwrap()));
-    }
 
+        // non-existence
+        assert!(!h.exists(PieceWithSide::new(0o233).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o223).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o217).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o257).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o232).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o102).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o107).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o156).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o145).unwrap()));
+        assert!(!h.exists(PieceWithSide::new(0o135).unwrap()));
+    }
+    
     #[test]
     fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
