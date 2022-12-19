@@ -21,7 +21,7 @@ pub enum Perspective {
     /// the player who had occupied the IA row in the beginning of the game has pieces that point upward
     /// (i.e. you)
     /// ／IAは一番下の行であり、初期状態でIA行を占有していたプレイヤーは駒が上向き（=あなた）である。
-    IaIsDownAndPointsUpward
+    IaIsDownAndPointsUpward,
 }
 
 impl PieceWithSide {
@@ -234,6 +234,53 @@ impl Coord {
             }),
             _ => None,
         }
+    }
+    pub fn is_tam_hue_by_default(coord: Self) -> bool {
+        coord
+            == Self {
+                row_index: 2,
+                col_index: 2,
+            }
+            || coord
+                == Self {
+                    row_index: 2,
+                    col_index: 6,
+                }
+            || coord
+                == Self {
+                    row_index: 3,
+                    col_index: 3,
+                }
+            || coord
+                == Self {
+                    row_index: 3,
+                    col_index: 5,
+                }
+            || coord
+                == Self {
+                    row_index: 4,
+                    col_index: 4,
+                }
+            || coord
+                == Self {
+                    row_index: 5,
+                    col_index: 3,
+                }
+            || coord
+                == Self {
+                    row_index: 5,
+                    col_index: 5,
+                }
+            || coord
+                == Self {
+                    row_index: 6,
+                    col_index: 2,
+                }
+            || coord
+                == Self {
+                    row_index: 6,
+                    col_index: 6,
+                }
     }
 }
 
