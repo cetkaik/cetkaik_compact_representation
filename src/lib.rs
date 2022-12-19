@@ -198,12 +198,20 @@ impl Field {
         self.board.put(to, Some(p))
     }
 
-    pub fn get_hop1zuo1(self) -> Hop1zuo1 {
+    pub fn to_hop1zuo1(self) -> Hop1zuo1 {
         self.hop1zuo1
     }
 
-    pub fn get_board(self) -> Board {
+    pub fn as_hop1zuo1(&self) -> &Hop1zuo1 {
+        &self.hop1zuo1
+    }
+
+    pub fn to_board(self) -> Board {
         self.board
+    }
+
+    pub fn as_board(&self) -> &Board {
+        &self.board
     }
 }
 
