@@ -12,12 +12,12 @@ impl Board {
     /// use cetkaik_compact_representation::*;
     /// assert_eq!(
     ///     Board::yhuap_initial().both_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
-    ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227, 
-    ///      0o237, 0o243, 0o247, 0o223, 0o233, 0o232, 0o222, 
-    ///      0o246, 0o210, 0o211, 0o212, 0o213, 0o257, 0o217, 
-    ///      0o216, 0o215, 0o214, 0o300, 0o100, 0o101, 0o102, 
-    ///      0o103, 0o156, 0o107, 0o106, 0o105, 0o104, 0o144, 
-    ///      0o120, 0o130, 0o131, 0o121, 0o145, 0o141, 0o135, 
+    ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
+    ///      0o237, 0o243, 0o247, 0o223, 0o233, 0o232, 0o222,
+    ///      0o246, 0o210, 0o211, 0o212, 0o213, 0o257, 0o217,
+    ///      0o216, 0o215, 0o214, 0o300, 0o100, 0o101, 0o102,
+    ///      0o103, 0o156, 0o107, 0o106, 0o105, 0o104, 0o144,
+    ///      0o120, 0o130, 0o131, 0o121, 0o145, 0o141, 0o135,
     ///      0o125, 0o151, 0o154, 0o150, 0o124, 0o134, 0o140].into_iter().map(|c| PieceWithSide::new(c).unwrap()).collect::<Vec<_>>()
     /// )
     /// ```
@@ -28,6 +28,58 @@ impl Board {
                 .filter_map(move |(col_index, maybe_piece)| {
                     match (maybe_piece, Coord::new(row_index, col_index)) {
                         (Some(piece), Some(coord)) => Some((coord, piece)),
+                        _ => None,
+                    }
+                })
+        })
+    }
+
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// assert_eq!(
+    ///     Board::yhuap_initial().ia_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
+    ///     [0o300, 0o100, 0o101, 0o102,
+    ///      0o103, 0o156, 0o107, 0o106, 0o105, 0o104, 0o144,
+    ///      0o120, 0o130, 0o131, 0o121, 0o145, 0o141, 0o135,
+    ///      0o125, 0o151, 0o154, 0o150, 0o124, 0o134, 0o140].into_iter().map(|c| PieceWithSide::new(c).unwrap()).collect::<Vec<_>>()
+    /// )
+    /// ```
+    pub fn ia_side_and_tam(self) -> impl Iterator<Item = (Coord, PieceWithSide)> {
+        self.0.into_iter().enumerate().flat_map(|(row_index, row)| {
+            row.into_iter()
+                .enumerate()
+                .filter_map(move |(col_index, maybe_piece)| {
+                    match (maybe_piece, Coord::new(row_index, col_index)) {
+                        (Some(piece), Some(coord)) if (piece.0.get() & 0o100) != 0 => {
+                            Some((coord, piece))
+                        }
+                        _ => None,
+                    }
+                })
+        })
+    }
+
+    /// # Example
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// assert_eq!(
+    ///     Board::yhuap_initial().a_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
+    ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
+    ///      0o237, 0o243, 0o247, 0o223, 0o233, 0o232, 0o222,
+    ///      0o246, 0o210, 0o211, 0o212, 0o213, 0o257, 0o217,
+    ///      0o216, 0o215, 0o214, 0o300].into_iter().map(|c| PieceWithSide::new(c).unwrap()).collect::<Vec<_>>()
+    /// )
+    /// ```
+    pub fn a_side_and_tam(self) -> impl Iterator<Item = (Coord, PieceWithSide)> {
+        self.0.into_iter().enumerate().flat_map(|(row_index, row)| {
+            row.into_iter()
+                .enumerate()
+                .filter_map(move |(col_index, maybe_piece)| {
+                    match (maybe_piece, Coord::new(row_index, col_index)) {
+                        (Some(piece), Some(coord)) if (piece.0.get() & 0o200) != 0 => {
+                            Some((coord, piece))
+                        }
                         _ => None,
                     }
                 })
