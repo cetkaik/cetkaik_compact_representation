@@ -197,6 +197,14 @@ impl Field {
         self.hop1zuo1.clear(p);
         self.board.put(to, Some(p))
     }
+
+    pub fn get_hop1zuo1(self) -> Hop1zuo1 {
+        self.hop1zuo1
+    }
+
+    pub fn get_board(self) -> Board {
+        self.board
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
