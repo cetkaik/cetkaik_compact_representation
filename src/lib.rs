@@ -474,7 +474,7 @@ impl Hop1zuo1 {
 
     /// # Safety
     /// assumes that `p` is valid and not Tam2
-    pub unsafe fn exists_unchecked(&mut self, p: PieceWithSide) -> bool {
+    pub unsafe fn exists_unchecked(&self, p: PieceWithSide) -> bool {
         let u8 = p.0.get();
 
         // M      L
@@ -485,6 +485,20 @@ impl Hop1zuo1 {
         let bit_position = 6 - (u8 & 0o03) * 2;
         0 != (*self.0.get_unchecked(index as usize) & (side << bit_position))
     }
+}
+
+fn hop1zuo1_both(h: Hop1zuo1) -> Vec<PieceWithSide> {
+    let mut ans = vec![];
+    for i in 0o00..=0o57 {
+        unsafe {
+            if h.exists_unchecked(PieceWithSide::new_unchecked(i | 0o100)) {
+                ans.push(PieceWithSide::new_unchecked(i | 0o100))
+            } else if h.exists_unchecked(PieceWithSide::new_unchecked(i | 0o200)) {
+                ans.push(PieceWithSide::new_unchecked(i | 0o200))
+            }
+        }
+    }
+    ans
 }
 
 #[cfg(test)]
@@ -577,7 +591,37 @@ mod tests {
     }
 
     #[test]
-    fn it_works() {
+    fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
+    }
+
+    #[test]
+    fn check_hop1zuo1_iteration() {
+        let h = unsafe {
+            std::mem::transmute::<[u8; 12], Hop1zuo1>([
+                0b00001000, /* 兵 */ 0b00000010, /* 兵 */
+                0b00000000, /* 兵 */ 0b00000001, /* 兵 */
+                0b00000001, /* 弓 */ 0b00000000, /* 車 */
+                0b00000101, /* 虎 */ 0b00100000, /* 馬 */
+                0b00000000, /* 筆 */ 0b00100000, /* 巫 */
+                0b00000000, /* 将 */ 0b00001001, /* 王と船 */
+            ])
+        };
+
+        assert_eq!(
+            hop1zuo1_both(h),
+            vec![
+                PieceWithSide::new(0o202).unwrap(),
+                PieceWithSide::new(0o207).unwrap(),
+                PieceWithSide::new(0o117).unwrap(),
+                PieceWithSide::new(0o123).unwrap(),
+                PieceWithSide::new(0o132).unwrap(),
+                PieceWithSide::new(0o133).unwrap(),
+                PieceWithSide::new(0o235).unwrap(),
+                PieceWithSide::new(0o245).unwrap(),
+                PieceWithSide::new(0o256).unwrap(),
+                PieceWithSide::new(0o157).unwrap(),
+            ]
+        )
     }
 }
