@@ -57,7 +57,7 @@ impl Iterator for crate::IASideHop1Zuo1Iter {
 }
 
 impl Iterator for crate::ASideHop1Zuo1IterWithColorAndProf {
-    type Item = (crate::Color, crate::Profession);
+    type Item = cetkaik_core::ColorAndProf;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -95,7 +95,7 @@ impl Iterator for crate::ASideHop1Zuo1IterWithColorAndProf {
                     Profession::Nuak1
                 };
                 self.i += 1;
-                return Some((color, prof));
+                return Some(cetkaik_core::ColorAndProf { color, prof });
             }
         }
         self.i += 1;
@@ -108,7 +108,7 @@ impl Iterator for crate::ASideHop1Zuo1IterWithColorAndProf {
 }
 
 impl Iterator for crate::IASideHop1Zuo1IterWithColorAndProf {
-    type Item = (crate::Color, crate::Profession);
+    type Item = cetkaik_core::ColorAndProf;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -146,7 +146,7 @@ impl Iterator for crate::IASideHop1Zuo1IterWithColorAndProf {
                     Profession::Nuak1
                 };
                 self.i += 1;
-                return Some((color, prof));
+                return Some(cetkaik_core::ColorAndProf { color, prof });
             }
         }
         self.i += 1;

@@ -747,17 +747,13 @@ impl Hop1zuo1 {
     ///   };
     ///
     ///   assert_eq!(
-    ///       h.ia_side_hop1zuo1_color_and_prof().collect::<Vec<_>>(),
-    ///       vec![
-    ///           (Color::Kok1, Profession::Kauk2),
-    ///           (Color::Kok1, Profession::Gua2),
-    ///           (Color::Huok2, Profession::Dau2),
-    ///           (Color::Kok1, Profession::Dau2),
-    ///           (Color::Kok1, Profession::Nuak1),
-    ///       ]
+    ///       h.ia_side_hop1zuo1_color_and_prof().map(|cp| cp.to_string()).collect::<Vec<_>>().join(" "),
+    ///       "赤兵 赤弓 黒虎 赤虎 赤船".to_string()
     ///   )
     /// ```
-    pub fn ia_side_hop1zuo1_color_and_prof(self) -> impl Iterator<Item = (Color, Profession)> {
+    pub fn ia_side_hop1zuo1_color_and_prof(
+        self,
+    ) -> impl Iterator<Item = cetkaik_core::ColorAndProf> {
         IASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 
@@ -807,17 +803,13 @@ impl Hop1zuo1 {
     ///   };
     ///
     ///   assert_eq!(
-    ///       h.a_side_hop1zuo1_color_and_prof().collect::<Vec<_>>(),
-    ///       vec![
-    ///           (Color::Huok2, Profession::Kauk2),
-    ///           (Color::Kok1, Profession::Kauk2),
-    ///           (Color::Kok1, Profession::Maun1),
-    ///           (Color::Kok1, Profession::Tuk2),
-    ///           (Color::Huok2, Profession::Nuak1),
-    ///       ]
+    ///       h.a_side_hop1zuo1_color_and_prof().map(|cp| cp.to_string()).collect::<Vec<_>>().join(" "),
+    ///       "黒兵 赤兵 赤馬 赤巫 黒船".to_string()
     ///   )
     /// ```
-    pub fn a_side_hop1zuo1_color_and_prof(self) -> impl Iterator<Item = (Color, Profession)> {
+    pub fn a_side_hop1zuo1_color_and_prof(
+        self,
+    ) -> impl Iterator<Item = cetkaik_core::ColorAndProf> {
         ASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 }
