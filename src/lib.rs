@@ -2,7 +2,7 @@
 #![allow(clippy::unreadable_literal)]
 use std::num::NonZeroU8;
 
-use cetkaik_core::{absolute, serialize_color, Color, Profession};
+use cetkaik_core::{absolute, serialize_color, Color, IsAbsoluteBoard, Profession, IsBoard};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -11,6 +11,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
+    /// use cetkaik_core::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().both_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
@@ -38,6 +39,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
+    /// use cetkaik_core::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().ia_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o300, 0o100, 0o101, 0o102,
@@ -64,6 +66,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
+    /// use cetkaik_core::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().a_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
@@ -493,9 +496,9 @@ impl std::fmt::Display for Coord {
     }
 }
 
-impl Board {
+impl IsAbsoluteBoard for Board {
     #[must_use]
-    pub const fn yhuap_initial() -> Self {
+    fn yhuap_initial() -> Self {
         Self(unsafe {
             std::mem::transmute::<[[u8; 9]; 9], [SingleRow; 9]>([
                 [
@@ -528,22 +531,27 @@ impl Board {
             ])
         })
     }
-    #[must_use]
-    pub const fn peek(&self, c: Coord) -> Option<PieceWithSide> {
+}
+
+impl IsBoard for Board {
+    type PieceWithSide = PieceWithSide;
+    type Coord = Coord;
+
+    fn peek(&self, c: Coord) -> Option<PieceWithSide> {
         self.0[c.row_index as usize][c.col_index as usize]
     }
-    pub fn pop(&mut self, c: Coord) -> Option<PieceWithSide> {
+    fn pop(&mut self, c: Coord) -> Option<PieceWithSide> {
         let p = self.0[c.row_index as usize][c.col_index as usize];
         self.put(c, None);
         p
     }
-    pub fn put(&mut self, c: Coord, p: Option<PieceWithSide>) {
+    fn put(&mut self, c: Coord, p: Option<PieceWithSide>) {
         self.0[c.row_index as usize][c.col_index as usize] = p;
     }
 
     /// # Panics
     /// Panics if the coordinate given by `c` is empty.
-    pub fn assert_empty(&self, c: Coord) {
+    fn assert_empty(&self, c: Coord) {
         assert!(
             self.peek(c).is_none(),
             "Expected the square {:?} to be empty, but it was occupied",
@@ -553,7 +561,7 @@ impl Board {
 
     /// # Panics
     /// Panics if the coordinate given by `c` is occupied.
-    pub fn assert_occupied(&self, c: Coord) {
+    fn assert_occupied(&self, c: Coord) {
         assert!(
             self.peek(c).is_some(),
             "Expected the square {:?} to be occupied, but it was empty",
@@ -561,20 +569,7 @@ impl Board {
         );
     }
 
-    /// Moves the piece located at `from` to an empty square `to`.
-    /// # Panics
-    /// Panics if either:
-    /// - `from` is unoccupied
-    /// - `to` is already occupied
-    pub fn mov(&mut self, from: Coord, to: Coord) {
-        self.pop(from).map_or_else(
-            || panic!("Empty square encountered at {from:?}"),
-            |src_piece| {
-                self.assert_empty(to);
-                self.put(to, Some(src_piece));
-            },
-        );
-    }
+    
 }
 
 impl Default for Hop1zuo1 {
