@@ -1,9 +1,10 @@
+#![warn(clippy::pedantic, clippy::nursery)]
+#![allow(clippy::unreadable_literal)]
 use std::num::NonZeroU8;
 
 use cetkaik_core::{absolute, serialize_color, Color, Profession};
 
 #[derive(Copy, Clone, Debug)]
-
 pub struct Board([SingleRow; 9]);
 
 impl Board {
@@ -107,6 +108,7 @@ pub enum Perspective {
 }
 
 impl PieceWithSide {
+    #[must_use]
     pub fn new(u: u8) -> Option<Self> {
         if (0o100..=0o157).contains(&u) || (0o200..=0o257).contains(&u) || 0o300 == u {
             let u = std::num::NonZeroU8::new(u)?;
@@ -117,9 +119,11 @@ impl PieceWithSide {
     }
     /// # Safety
     /// The input must satisfy `(0o100..=0o157).contains(&u) || (0o200..=0o257).contains(&u) || 0o300 == u`
+    #[must_use]
     pub const unsafe fn new_unchecked(u: u8) -> Self {
         Self(std::num::NonZeroU8::new_unchecked(u))
     }
+    #[must_use]
     pub const fn color(self) -> Color {
         if self.0.get() % 2 == 0 {
             Color::Huok2
@@ -127,9 +131,11 @@ impl PieceWithSide {
             Color::Kok1
         }
     }
+    #[must_use]
     pub const fn is_tam2(self) -> bool {
         self.0.get() & 0o300 == 0o300
     }
+    #[must_use]
     pub const fn prof(self) -> MaybeTam2<Profession> {
         if self.is_tam2() {
             return MaybeTam2::Tam2;
@@ -157,6 +163,7 @@ impl PieceWithSide {
             MaybeTam2::NotTam2(Profession::Nuak1)
         }
     }
+    #[must_use]
     pub const fn prof_and_side(self) -> MaybeTam2<(Profession, absolute::Side)> {
         if self.is_tam2() {
             return MaybeTam2::Tam2;
@@ -202,6 +209,7 @@ impl PieceWithSide {
     /// let c = PieceWithSide::invert_side_with_tam_entangled(None).unwrap();
     /// assert_eq!(c.to_string(), "皇");
     /// ```
+    #[must_use]
     pub const fn invert_side_with_tam_entangled(s: Option<Self>) -> Option<Self> {
         unsafe {
             let s = std::mem::transmute::<Option<Self>, u8>(s);
@@ -221,8 +229,9 @@ impl PieceWithSide {
     /// assert_eq!(c.to_string(), "皇");
     /// assert_eq!(c.invert_side(), None);
     /// ```
+    #[must_use]
     pub const fn invert_side(self) -> Option<Self> {
-        PieceWithSide::invert_side_with_tam_entangled(Some(self))
+        Self::invert_side_with_tam_entangled(Some(self))
     }
 }
 
@@ -257,17 +266,24 @@ pub struct Field {
 }
 
 impl Field {
+    /// # Panics
+    /// Panics when:
+    /// - `from == to`
+    /// - either `from` or `to` is an empty square
     pub fn take(&mut self, from: Coord, to: Coord) {
         assert_ne!(from, to);
         match (self.board.pop(from), self.board.pop(to)) {
             (Some(src_piece), Some(dst_piece)) => {
                 self.board.put(to, Some(src_piece));
                 self.hop1zuo1
-                    .set(dst_piece.invert_side().expect("Cannot take Tam2"))
+                    .set(dst_piece.invert_side().expect("Cannot take Tam2"));
             }
-            _ => panic!("Empty square encountered at either {:?} or {:?}", from, to),
+            _ => panic!("Empty square encountered at either {from:?} or {to:?}"),
         }
     }
+    
+    /// # Panics
+    /// Panics when `p` is not in hop1zuo1.
     pub fn from_hop1zuo1(&mut self, p: PieceWithSide, to: Coord) {
         assert!(
             self.hop1zuo1.exists(p),
@@ -277,22 +293,26 @@ impl Field {
         );
 
         self.hop1zuo1.clear(p);
-        self.board.put(to, Some(p))
+        self.board.put(to, Some(p));
     }
 
-    pub fn to_hop1zuo1(self) -> Hop1zuo1 {
+    #[must_use]
+    pub const fn to_hop1zuo1(self) -> Hop1zuo1 {
         self.hop1zuo1
     }
 
-    pub fn as_hop1zuo1(&self) -> &Hop1zuo1 {
+    #[must_use]
+    pub const fn as_hop1zuo1(&self) -> &Hop1zuo1 {
         &self.hop1zuo1
     }
 
-    pub fn to_board(self) -> Board {
+    #[must_use]
+    pub const fn to_board(self) -> Board {
         self.board
     }
 
-    pub fn as_board(&self) -> &Board {
+    #[must_use]
+    pub const fn as_board(&self) -> &Board {
         &self.board
     }
 }
@@ -304,9 +324,11 @@ pub struct Coord {
 }
 
 impl Coord {
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub const fn new(row_index: usize, col_index: usize) -> Option<Self> {
         if row_index < 9 && col_index < 9 {
-            Some(Coord {
+            Some(Self {
                 row_index: row_index as u8,
                 col_index: col_index as u8,
             })
@@ -314,6 +336,7 @@ impl Coord {
             None
         }
     }
+    #[must_use]
     pub const fn add_delta(self, row_delta: isize, col_delta: isize) -> Option<Self> {
         const fn add(base: usize, delta: isize) -> Option<usize> {
             match base.checked_add_signed(delta) {
@@ -326,10 +349,11 @@ impl Coord {
             add(self.row_index as usize, row_delta),
             add(self.col_index as usize, col_delta),
         ) {
-            (Some(row_index), Some(col_index)) => Coord::new(row_index, col_index),
+            (Some(row_index), Some(col_index)) => Self::new(row_index, col_index),
             _ => None,
         }
     }
+    #[must_use]
     pub fn is_tam_hue_by_default(coord: Self) -> bool {
         coord
             == Self {
@@ -379,6 +403,7 @@ impl Coord {
     }
 
     #[allow(clippy::nonminimal_bool)]
+    #[must_use]
     pub const fn is_water(coord: Self) -> bool {
         let Self {
             row_index: row,
@@ -395,6 +420,7 @@ impl Coord {
             || (row == 6 && col == 4)
     }
 
+    #[must_use]
     pub fn distance(a: Self, b: Self) -> i32 {
         let Self {
             row_index: x1,
@@ -405,8 +431,8 @@ impl Coord {
             col_index: y2,
         } = b;
 
-        let x_distance = (i32::try_from(x1).unwrap() - i32::try_from(x2).unwrap()).abs();
-        let y_distance = (i32::try_from(y1).unwrap() - i32::try_from(y2).unwrap()).abs();
+        let x_distance = (i32::from(x1) - i32::from(x2)).abs();
+        let y_distance = (i32::from(y1) - i32::from(y2)).abs();
 
         x_distance.max(y_distance)
     }
@@ -453,13 +479,14 @@ impl std::fmt::Display for Coord {
         } else {
             "IA"
         };
-        write!(f, "{}{}", col, row)
+        write!(f, "{col}{row}")
     }
 }
 
 impl Board {
+    #[must_use]
     pub const fn yhuap_initial() -> Self {
-        Board(unsafe {
+        Self(unsafe {
             std::mem::transmute::<[[u8; 9]; 9], [SingleRow; 9]>([
                 [
                     0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227, 0o237, 0o243,
@@ -491,7 +518,8 @@ impl Board {
             ])
         })
     }
-    pub fn peek(&self, c: Coord) -> Option<PieceWithSide> {
+    #[must_use]
+    pub const fn peek(&self, c: Coord) -> Option<PieceWithSide> {
         self.0[c.row_index as usize][c.col_index as usize]
     }
     pub fn pop(&mut self, c: Coord) -> Option<PieceWithSide> {
@@ -500,35 +528,42 @@ impl Board {
         p
     }
     pub fn put(&mut self, c: Coord, p: Option<PieceWithSide>) {
-        self.0[c.row_index as usize][c.col_index as usize] = p
+        self.0[c.row_index as usize][c.col_index as usize] = p;
     }
 
+    /// # Panics
+    /// Panics if the coordinate given by `c` is empty.
     pub fn assert_empty(&self, c: Coord) {
-        if self.peek(c).is_some() {
-            panic!(
-                "Expected the square {:?} to be empty, but it was occupied",
-                c
-            )
-        }
+        assert!(
+            self.peek(c).is_none(),
+            "Expected the square {:?} to be empty, but it was occupied",
+            c
+        );
     }
 
+    /// # Panics
+    /// Panics if the coordinate given by `c` is occupied.
     pub fn assert_occupied(&self, c: Coord) {
-        if self.peek(c).is_none() {
-            panic!(
-                "Expected the square {:?} to be occupied, but it was empty",
-                c
-            )
-        }
+        assert!(
+            self.peek(c).is_some(),
+            "Expected the square {:?} to be occupied, but it was empty",
+            c
+        );
     }
 
+    /// Moves the piece located at `from` to an empty square `to`.
+    /// # Panics
+    /// Panics if either:
+    /// - `from` is unoccupied
+    /// - `to` is already occupied
     pub fn mov(&mut self, from: Coord, to: Coord) {
-        match self.pop(from) {
-            None => panic!("Empty square encountered at {:?}", from),
-            Some(src_piece) => {
+        self.pop(from).map_or_else(
+            || panic!("Empty square encountered at {from:?}"),
+            |src_piece| {
                 self.assert_empty(to);
-                self.put(to, Some(src_piece))
-            }
-        }
+                self.put(to, Some(src_piece));
+            },
+        );
     }
 }
 
@@ -539,16 +574,19 @@ impl Default for Hop1zuo1 {
 }
 
 impl Hop1zuo1 {
+    #[must_use]
     pub const fn new() -> Self {
-        Hop1zuo1([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        Self([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     }
+    /// # Panics
+    /// - putting Tam2 into hop1zuo1
+    /// - putting a piece that is already in hop1zuo1
     pub fn set(&mut self, p: PieceWithSide) {
         let u8 = p.0.get();
         assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
-        if u8 == 0o300 {
-            panic!("Tried to set Tam2 into Hop1zuo1")
-        }
+        assert!(u8 != 0o300, "Tried to set Tam2 into Hop1zuo1");
         assert!(!self.exists(p));
+        assert!(!self.exists(p.invert_side().unwrap()));
         unsafe { self.set_unchecked(p) }
     }
 
@@ -566,13 +604,16 @@ impl Hop1zuo1 {
 
         *self.0.get_unchecked_mut(index as usize) |= side << bit_position;
     }
+
+    /// # Panics
+    /// Panics when either:
+    /// - `p` is Tam2
+    /// - `p` does not exist in hop1zuo1
     pub fn clear(&mut self, p: PieceWithSide) {
         let u8 = p.0.get();
 
         assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
-        if u8 == 0o300 {
-            panic!("Tried to set Tam2 into Hop1zuo1")
-        }
+        assert!(u8 != 0o300, "Tried to set Tam2 into Hop1zuo1");
         assert!(self.exists(p));
         unsafe { self.clear_unchecked(p) }
     }
@@ -585,23 +626,24 @@ impl Hop1zuo1 {
         // M      L
         // xxxxxxxx
         // SdIndxBp
-        let _side = u8 >> 6;
+        // let _side = u8 >> 6;
         let index = (u8 & 0o77) >> 2;
         let bit_position = 6 - (u8 & 0o03) * 2;
 
         *self.0.get_unchecked_mut(index as usize) &= !(3 << bit_position);
     }
+    /// # Panics
+    /// - p is Tam2
     pub fn exists(&mut self, p: PieceWithSide) -> bool {
         let u8 = p.0.get();
         assert!((0o100..=0o157).contains(&u8) || (0o200..=0o257).contains(&u8) || 0o300 == u8);
-        if u8 == 0o300 {
-            panic!("Tried to set Tam2 into Hop1zuo1")
-        }
+        assert!(u8 != 0o300, "Tried to ask wheter Tam2 exists in Hop1zuo1");
         unsafe { self.exists_unchecked(p) }
     }
 
     /// # Safety
     /// assumes that `p` is valid and not Tam2
+    #[must_use]
     pub unsafe fn exists_unchecked(&self, p: PieceWithSide) -> bool {
         let u8 = p.0.get();
 
@@ -830,7 +872,7 @@ mod tests {
         h.set(p);
         assert!(h.exists(p));
         h.clear(p);
-        assert!(!h.exists(p))
+        assert!(!h.exists(p));
     }
 
     #[test]
