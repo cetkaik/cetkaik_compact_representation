@@ -281,7 +281,7 @@ impl Field {
             _ => panic!("Empty square encountered at either {from:?} or {to:?}"),
         }
     }
-    
+
     /// # Panics
     /// Panics when `p` is not in hop1zuo1.
     pub fn from_hop1zuo1(&mut self, p: PieceWithSide, to: Coord) {
@@ -435,6 +435,16 @@ impl Coord {
         let y_distance = (i32::from(y1) - i32::from(y2)).abs();
 
         x_distance.max(y_distance)
+    }
+
+    #[must_use]
+    pub const fn same_direction(origin: Self, a: Self, b: Self) -> bool {
+        let a_u = (a.row_index as i32) - (origin.row_index as i32);
+        let a_v = (a.col_index as i32) - (origin.col_index as i32);
+        let b_u = (b.row_index as i32) - (origin.row_index as i32);
+        let b_v = (b.col_index as i32) - (origin.col_index as i32);
+
+        (a_u * b_u + a_v * b_v > 0) && (a_u * b_v - a_v * b_u == 0)
     }
 }
 
