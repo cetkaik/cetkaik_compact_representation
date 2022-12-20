@@ -394,6 +394,22 @@ impl Coord {
             || (row == 5 && col == 4)
             || (row == 6 && col == 4)
     }
+
+    pub fn distance(a: Self, b: Self) -> i32 {
+        let Self {
+            row_index: x1,
+            col_index: y1,
+        } = a;
+        let Self {
+            row_index: x2,
+            col_index: y2,
+        } = b;
+
+        let x_distance = (i32::try_from(x1).unwrap() - i32::try_from(x2).unwrap()).abs();
+        let y_distance = (i32::try_from(y1).unwrap() - i32::try_from(y2).unwrap()).abs();
+
+        x_distance.max(y_distance)
+    }
 }
 
 impl std::fmt::Display for Coord {
