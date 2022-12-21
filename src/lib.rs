@@ -2,9 +2,9 @@
 #![allow(clippy::unreadable_literal)]
 use std::num::NonZeroU8;
 
-use cetkaik_core::{
-    absolute, serialize_color, Color, IsAbsoluteBoard, IsBoard, IsField, Profession,
-};
+use cetkaik_fundamental::{serialize_color, Color, Profession, AbsoluteSide};
+
+use cetkaik_interface::{IsAbsoluteBoard, IsBoard, IsField};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -13,7 +13,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_core::IsAbsoluteBoard;
+    /// use cetkaik_interface::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().both_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
@@ -41,7 +41,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_core::IsAbsoluteBoard;
+    /// use cetkaik_interface::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().ia_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o300, 0o100, 0o101, 0o102,
@@ -68,7 +68,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_core::IsAbsoluteBoard;
+    /// use cetkaik_interface::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().a_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
@@ -170,14 +170,14 @@ impl PieceWithSide {
         }
     }
     #[must_use]
-    pub const fn prof_and_side(self) -> MaybeTam2<(Profession, absolute::Side)> {
+    pub const fn prof_and_side(self) -> MaybeTam2<(Profession, AbsoluteSide)> {
         if self.is_tam2() {
             return MaybeTam2::Tam2;
         }
         let s = if self.0.get() & 0o300 == 0o100 {
-            absolute::Side::IASide
+            AbsoluteSide::IASide
         } else {
-            absolute::Side::ASide
+            AbsoluteSide::ASide
         };
         let p = self.0.get() & 0o77;
         if p < 16 {
@@ -283,32 +283,32 @@ impl PieceWithSide {
     /// let tam = PieceWithSide::new(0o300).unwrap();
     /// assert_eq!(tam.to_string(), "皇");
     ///
-    /// assert!(a.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
-    /// assert!(!b.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
-    /// assert!(tam.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
-    /// assert!(b.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
-    /// assert!(!a.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
-    /// assert!(tam.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
+    /// assert!(a.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::ASide));
+    /// assert!(!b.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::ASide));
+    /// assert!(tam.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::ASide));
+    /// assert!(b.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::IASide));
+    /// assert!(!a.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::IASide));
+    /// assert!(tam.can_be_moved_by(cetkaik_fundamental::AbsoluteSide::IASide));
     /// ```
     #[must_use]
-    pub const fn can_be_moved_by(self, side: cetkaik_core::absolute::Side) -> bool {
+    pub const fn can_be_moved_by(self, side: cetkaik_fundamental::AbsoluteSide) -> bool {
         let u8 = self.0.get();
         match side {
-            absolute::Side::ASide => 0o200 & u8 != 0,
-            absolute::Side::IASide => 0o100 & u8 != 0,
+            AbsoluteSide::ASide => 0o200 & u8 != 0,
+            AbsoluteSide::IASide => 0o100 & u8 != 0,
         }
     }
 }
 
 impl std::fmt::Display for PieceWithSide {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        use cetkaik_core::serialize_prof;
+        use cetkaik_fundamental::serialize_prof;
         match self.prof_and_side() {
             MaybeTam2::Tam2 => write!(f, "皇"),
             MaybeTam2::NotTam2((prof, side)) => write!(
                 f,
                 "{}{}{}",
-                if side == absolute::Side::IASide {
+                if side == AbsoluteSide::IASide {
                     "↑"
                 } else {
                     "↓"
@@ -334,7 +334,7 @@ impl IsField for Field {
     type Board = Board;
     type Coord = Coord;
     type PieceWithSide = PieceWithSide;
-    type Side = cetkaik_core::absolute::Side;
+    type Side = cetkaik_fundamental::AbsoluteSide;
 
     fn move_nontam_piece_from_src_to_dest_while_taking_opponent_piece_if_needed(
         &self,
@@ -374,7 +374,7 @@ impl IsField for Field {
         &self,
         color: Color,
         prof: Profession,
-        side: cetkaik_core::absolute::Side,
+        side: cetkaik_fundamental::AbsoluteSide,
         dest: Coord,
     ) -> Option<Self> {
         for piece in self.as_hop1zuo1().both_hop1zuo1() {
@@ -860,7 +860,7 @@ impl Hop1zuo1 {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_core::{Color, Profession};
+    /// use cetkaik_fundamental::{Color, Profession};
     /// let h = unsafe {
     ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
     ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
@@ -879,7 +879,7 @@ impl Hop1zuo1 {
     /// ```
     pub fn ia_side_hop1zuo1_color_and_prof(
         self,
-    ) -> impl Iterator<Item = cetkaik_core::ColorAndProf> {
+    ) -> impl Iterator<Item = cetkaik_fundamental::ColorAndProf> {
         IASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 
@@ -916,7 +916,7 @@ impl Hop1zuo1 {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_core::{Color, Profession};
+    /// use cetkaik_fundamental::{Color, Profession};
     /// let h = unsafe {
     ///       std::mem::transmute::<[u8; 12], Hop1zuo1>([
     ///           0b00001000, /* 兵 */ 0b00000010, /* 兵 */
@@ -935,7 +935,7 @@ impl Hop1zuo1 {
     /// ```
     pub fn a_side_hop1zuo1_color_and_prof(
         self,
-    ) -> impl Iterator<Item = cetkaik_core::ColorAndProf> {
+    ) -> impl Iterator<Item = cetkaik_fundamental::ColorAndProf> {
         ASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
     }
 }
@@ -1074,4 +1074,4 @@ mod tests {
     }
 }
 
-pub type PureMove = cetkaik_core::PureMove_<Coord>;
+pub type PureMove = cetkaik_fundamental::PureMove_<Coord>;
