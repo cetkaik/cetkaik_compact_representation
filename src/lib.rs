@@ -2,7 +2,9 @@
 #![allow(clippy::unreadable_literal)]
 use std::num::NonZeroU8;
 
-use cetkaik_core::{absolute, serialize_color, Color, IsAbsoluteBoard, Profession, IsBoard};
+use cetkaik_core::{
+    absolute, serialize_color, Color, IsAbsoluteBoard, IsBoard, IsField, Profession,
+};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -236,6 +238,66 @@ impl PieceWithSide {
     pub const fn invert_side(self) -> Option<Self> {
         Self::invert_side_with_tam_entangled(Some(self))
     }
+
+    /// Checks whether `self` can take `other`.
+    /// That is, either
+    /// - `self`'s top two bits are `10` and `other`'s top two bits are `01`
+    /// - vice versa
+    /// ```
+    /// use cetkaik_compact_representation::PieceWithSide;
+    /// let a = PieceWithSide::new(0o240).unwrap();
+    /// assert_eq!(a.to_string(), "↓黒筆");
+    /// let b = PieceWithSide::new(0o140).unwrap();
+    /// assert_eq!(b.to_string(), "↑黒筆");
+    /// let tam = PieceWithSide::new(0o300).unwrap();
+    /// assert_eq!(tam.to_string(), "皇");
+    ///
+    /// assert!(a.can_take(b));
+    /// assert!(b.can_take(a));
+    /// assert!(!a.can_take(a));
+    /// assert!(!b.can_take(b));
+    /// assert!(!a.can_take(tam));
+    /// assert!(!b.can_take(tam));
+    /// ```
+    #[must_use]
+    pub const fn can_take(self, other: Self) -> bool {
+        // 10xxxxxx
+        // 01xxxxxx
+        //--------- xor
+        // 11xxxxxx
+        //--------- not
+        // 00xxxxxx
+        // 11000000
+        //---------and
+        // 00000000
+        0o300 & !(self.0.get() ^ other.0.get()) == 0
+    }
+
+
+    /// ```
+    /// use cetkaik_compact_representation::PieceWithSide;
+    /// let a = PieceWithSide::new(0o240).unwrap();
+    /// assert_eq!(a.to_string(), "↓黒筆");
+    /// let b = PieceWithSide::new(0o140).unwrap();
+    /// assert_eq!(b.to_string(), "↑黒筆");
+    /// let tam = PieceWithSide::new(0o300).unwrap();
+    /// assert_eq!(tam.to_string(), "皇");
+    ///
+    /// assert!(a.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
+    /// assert!(!b.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
+    /// assert!(tam.can_be_moved_by(cetkaik_core::absolute::Side::ASide));
+    /// assert!(b.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
+    /// assert!(!a.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
+    /// assert!(tam.can_be_moved_by(cetkaik_core::absolute::Side::IASide));
+    /// ```
+    #[must_use]
+    pub const fn can_be_moved_by(self, side: cetkaik_core::absolute::Side) -> bool {
+        let u8 = self.0.get();
+        match side {
+            absolute::Side::ASide => 0o200 & u8 != 0,
+            absolute::Side::IASide => 0o100 & u8 != 0,
+        }
+    }
 }
 
 impl std::fmt::Display for PieceWithSide {
@@ -268,26 +330,41 @@ pub struct Field {
     hop1zuo1: Hop1zuo1,
 }
 
-impl Field {
-    /// # Panics
-    /// Panics when:
-    /// - `from == to`
-    /// - either `from` or `to` is an empty square
-    pub fn take(&mut self, from: Coord, to: Coord) {
-        assert_ne!(from, to);
-        match (self.board.pop(from), self.board.pop(to)) {
-            (Some(src_piece), Some(dst_piece)) => {
-                self.board.put(to, Some(src_piece));
-                self.hop1zuo1
-                    .set(dst_piece.invert_side().expect("Cannot take Tam2"));
+impl IsField for Field {
+    type Board = Board;
+    type Coord = Coord;
+    type PieceWithSide = PieceWithSide;
+    type Side = cetkaik_core::absolute::Side;
+
+    fn move_nontam_piece_from_src_to_dest_while_taking_opponent_piece_if_needed(
+        &self,
+        from: Self::Coord,
+        to: Self::Coord,
+        whose_turn: Self::Side,
+    ) -> Result<Self, &'static str>
+    where
+        Self: std::marker::Sized,
+    {
+        let Some(src_piece) = self.as_board().0[from.row_index as usize][from.col_index as usize]
+        else { return Err("src does not contain a piece") };
+
+        if !src_piece.can_be_moved_by(whose_turn) {
+            return Err("not the right owner")
+        }
+        
+        match self.as_board().0[to.row_index as usize][to.col_index as usize] {
+            None => {
+                let mut new_self = *self;
+                new_self.as_board_mut().mov(from, to);
+                Ok(new_self)
             }
-            _ => panic!("Empty square encountered at either {from:?} or {to:?}"),
+            Some(_) => self.try_take(from, to).ok_or("cannot take"),
         }
     }
 
     /// # Panics
     /// Panics when `p` is not in hop1zuo1.
-    pub fn from_hop1zuo1(&mut self, p: PieceWithSide, to: Coord) {
+    fn parachute_nontam(&mut self, p: PieceWithSide, to: Coord) {
         assert!(
             self.hop1zuo1.exists(p),
             "cannot place {:?} ({}) because it is not in hop1zuo1",
@@ -297,6 +374,57 @@ impl Field {
 
         self.hop1zuo1.clear(p);
         self.board.put(to, Some(p));
+    }
+
+    fn as_board(&self) -> &Board {
+        &self.board
+    }
+
+    fn as_board_mut(&mut self) -> &mut Board {
+        &mut self.board
+    }
+}
+
+impl Field {
+    /// # Panics
+    /// Panics when:
+    /// - `from == to`
+    /// - either `from` or `to` is an empty square
+    /// - either `from` or `to` is tam2
+    pub fn take(&mut self, from: Coord, to: Coord) {
+        assert_ne!(from, to);
+        match (self.board.pop(from), self.board.pop(to)) {
+            (Some(src_piece), Some(dst_piece)) => {
+                assert!(src_piece.can_take(dst_piece));
+                self.board.put(to, Some(src_piece));
+                self.hop1zuo1
+                    .set(dst_piece.invert_side().expect("Cannot take Tam2"));
+            }
+            _ => panic!("Empty square encountered at either {from:?} or {to:?}"),
+        }
+    }
+
+    /// # Error
+    /// Gives an error when:
+    /// - `from == to`
+    /// - either `from` or `to` is an empty square
+    /// - either `from` or `to` is tam2
+    #[must_use]
+    pub fn try_take(&self, from: Coord, to: Coord) -> Option<Self> {
+        let mut new_self = *self;
+        match (new_self.board.pop(from), new_self.board.pop(to)) {
+            (Some(src_piece), Some(dst_piece)) => {
+                if !src_piece.can_take(dst_piece) {
+                    return None;
+                }
+                new_self.board.put(to, Some(src_piece));
+                new_self
+                    .hop1zuo1
+                    .set(dst_piece.invert_side().expect("Cannot take Tam2"));
+                Some(new_self)
+            }
+            _ => None,
+        }
     }
 
     #[must_use]
@@ -317,16 +445,6 @@ impl Field {
     #[must_use]
     pub const fn to_board(self) -> Board {
         self.board
-    }
-
-    #[must_use]
-    pub const fn as_board(&self) -> &Board {
-        &self.board
-    }
-
-    #[must_use]
-    pub fn as_board_mut(&mut self) -> &mut Board {
-        &mut self.board
     }
 }
 
@@ -578,8 +696,6 @@ impl IsBoard for Board {
             c
         );
     }
-
-    
 }
 
 impl Default for Hop1zuo1 {
