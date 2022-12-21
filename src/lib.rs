@@ -98,6 +98,7 @@ type SingleRow = [Option<PieceWithSide>; 9];
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct PieceWithSide(NonZeroU8);
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum MaybeTam2<T> {
     Tam2,
     NotTam2(T),
@@ -273,7 +274,6 @@ impl PieceWithSide {
         0o300 & !(self.0.get() ^ other.0.get()) == 0
     }
 
-
     /// ```
     /// use cetkaik_compact_representation::PieceWithSide;
     /// let a = PieceWithSide::new(0o240).unwrap();
@@ -349,9 +349,9 @@ impl IsField for Field {
         else { return Err("src does not contain a piece") };
 
         if !src_piece.can_be_moved_by(whose_turn) {
-            return Err("not the right owner")
+            return Err("not the right owner");
         }
-        
+
         match self.as_board().0[to.row_index as usize][to.col_index as usize] {
             None => {
                 let mut new_self = *self;
@@ -382,6 +382,25 @@ impl IsField for Field {
 
     fn as_board_mut(&mut self) -> &mut Board {
         &mut self.board
+    }
+
+    fn find_and_remove_piece_from_hop1zuo1(
+        &self,
+        color: Color,
+        prof: Profession,
+        side: Self::Side,
+    ) -> Option<Self>
+    where
+        Self: std::marker::Sized,
+    {
+        for piece in self.as_hop1zuo1().both_hop1zuo1() {
+            if piece.color() == color && piece.prof_and_side() == MaybeTam2::NotTam2((prof, side)) {
+                let mut new_self = *self;
+                new_self.as_hop1zuo1_mut().clear(piece);
+                return Some(new_self);
+            }
+        }
+        None
     }
 }
 
