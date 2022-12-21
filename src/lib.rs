@@ -310,6 +310,11 @@ impl Field {
     }
 
     #[must_use]
+    pub fn as_hop1zuo1_mut(&mut self) -> &mut Hop1zuo1 {
+        &mut self.hop1zuo1
+    }
+
+    #[must_use]
     pub const fn to_board(self) -> Board {
         self.board
     }
@@ -317,6 +322,11 @@ impl Field {
     #[must_use]
     pub const fn as_board(&self) -> &Board {
         &self.board
+    }
+
+    #[must_use]
+    pub fn as_board_mut(&mut self) -> &mut Board {
+        &mut self.board
     }
 }
 
