@@ -2,9 +2,9 @@
 #![allow(clippy::unreadable_literal)]
 use std::num::NonZeroU8;
 
-use cetkaik_fundamental::{serialize_color, Color, Profession, AbsoluteSide};
+use cetkaik_fundamental::{serialize_color, AbsoluteSide, Color, Profession};
 
-use cetkaik_interface::{IsAbsoluteBoard, IsBoard, IsField};
+use cetkaik_interface::{CetkaikRepresentation, IsAbsoluteBoard, IsBoard, IsField, IsAbsoluteField};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -1075,3 +1075,185 @@ mod tests {
 }
 
 pub type PureMove = cetkaik_fundamental::PureMove_<Coord>;
+
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
+pub struct CetkaikCompact;
+
+/// `cetkaik_compact_representation` クレートに基づいており、視点を決め打ちして絶対座標=相対座標として表現する。
+/// この impl においては、IAは常に一番下の行であり、初期状態でIA行を占有していたプレイヤーは駒が上向き（=あなた）である。
+/// つまり、`Upward` は常に `IASide` へと読み替えられる。
+impl CetkaikRepresentation for CetkaikCompact {
+    type Perspective = crate::Perspective;
+
+    type AbsoluteCoord = crate::Coord;
+    type RelativeCoord = crate::Coord;
+
+    type AbsoluteBoard = crate::Board;
+    type RelativeBoard = crate::Board;
+
+    type AbsolutePiece = crate::PieceWithSide;
+    type RelativePiece = crate::PieceWithSide;
+
+    type AbsoluteField = crate::Field;
+    type RelativeField = crate::Field;
+
+    type RelativeSide = AbsoluteSide; // ここも absolute
+    fn to_absolute_coord(coord: Self::RelativeCoord, _p: Self::Perspective) -> Self::AbsoluteCoord {
+        coord
+    }
+    fn add_delta(
+        coord: Self::RelativeCoord,
+        row_delta: isize,
+        col_delta: isize,
+    ) -> Option<Self::RelativeCoord> {
+        crate::Coord::add_delta(coord, row_delta, col_delta)
+    }
+    fn relative_get(
+        board: Self::RelativeBoard,
+        coord: Self::RelativeCoord,
+    ) -> Option<Self::RelativePiece> {
+        board.peek(coord)
+    }
+    fn relative_clone_and_set(
+        board: &Self::RelativeBoard,
+        coord: Self::RelativeCoord,
+        p: Option<Self::RelativePiece>,
+    ) -> Self::RelativeBoard {
+        let mut new_board = *board;
+        new_board.put(coord, p);
+        new_board
+    }
+    fn absolute_get(
+        board: &Self::AbsoluteBoard,
+        coord: Self::AbsoluteCoord,
+    ) -> Option<Self::AbsolutePiece> {
+        board.peek(coord)
+    }
+    fn is_tam_hue_by_default(coord: Self::RelativeCoord) -> bool {
+        Self::RelativeCoord::is_tam_hue_by_default(coord)
+    }
+    fn relative_tam2() -> Self::RelativePiece {
+        unsafe { crate::PieceWithSide::new_unchecked(0o300) }
+    }
+    fn absolute_tam2() -> Self::AbsolutePiece {
+        unsafe { crate::PieceWithSide::new_unchecked(0o300) }
+    }
+    fn is_upward(s: Self::RelativeSide) -> bool {
+        s == AbsoluteSide::IASide
+    }
+    fn match_on_piece_and_apply<U>(
+        piece: Self::RelativePiece,
+        f_tam: &dyn Fn() -> U,
+        f_piece: &dyn Fn(Profession, Self::RelativeSide) -> U,
+    ) -> U {
+        match piece.prof_and_side() {
+            crate::MaybeTam2::Tam2 => f_tam(),
+            crate::MaybeTam2::NotTam2((prof, side)) => f_piece(prof, side),
+        }
+    }
+    fn empty_squares_relative(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
+        let mut ans = vec![];
+        for rand_i in 0..9 {
+            for rand_j in 0..9 {
+                let coord: Self::RelativeCoord = Self::RelativeCoord::new(rand_i, rand_j).unwrap();
+                if Self::relative_get(*board, coord).is_none() {
+                    ans.push(coord);
+                }
+            }
+        }
+        ans
+    }
+    fn empty_squares_absolute(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
+        Self::empty_squares_relative(board)
+    }
+
+    fn hop1zuo1_of(
+        side: AbsoluteSide,
+        field: &Self::AbsoluteField,
+    ) -> Vec<cetkaik_fundamental::ColorAndProf> {
+        match side {
+            AbsoluteSide::ASide => field
+                .to_hop1zuo1()
+                .a_side_hop1zuo1_color_and_prof()
+                .collect(),
+            AbsoluteSide::IASide => field
+                .to_hop1zuo1()
+                .ia_side_hop1zuo1_color_and_prof()
+                .collect(),
+        }
+    }
+    fn as_board_absolute(field: &Self::AbsoluteField) -> &Self::AbsoluteBoard {
+        field.as_board()
+    }
+    fn as_board_mut_absolute(field: &mut Self::AbsoluteField) -> &mut Self::AbsoluteBoard {
+        field.as_board_mut()
+    }
+    fn as_board_relative(field: &Self::RelativeField) -> &Self::RelativeBoard {
+        field.as_board()
+    }
+    fn is_water_relative(c: Self::RelativeCoord) -> bool {
+        crate::Coord::is_water(c)
+    }
+    fn is_water_absolute(c: Self::AbsoluteCoord) -> bool {
+        crate::Coord::is_water(c)
+    }
+    fn loop_over_one_side_and_tam(
+        board: &Self::RelativeBoard,
+        side: Self::RelativeSide,
+        f_tam_or_piece: &mut dyn FnMut(Self::RelativeCoord, Option<Profession>),
+    ) {
+        let fun = |(src, piece): (Self::RelativeCoord, Self::RelativePiece)| match piece
+            .prof_and_side()
+        {
+            crate::MaybeTam2::Tam2 => f_tam_or_piece(src, None),
+            crate::MaybeTam2::NotTam2((prof, _)) => {
+                f_tam_or_piece(src, Some(prof));
+            }
+        };
+        match side {
+            AbsoluteSide::ASide => board.a_side_and_tam().for_each(fun),
+            AbsoluteSide::IASide => board.ia_side_and_tam().for_each(fun),
+        }
+    }
+
+    fn to_relative_field(field: Self::AbsoluteField, _p: Self::Perspective) -> Self::RelativeField {
+        field
+    }
+
+    fn to_relative_side(side: AbsoluteSide, _p: Self::Perspective) -> Self::RelativeSide {
+        side
+    }
+    fn get_one_perspective() -> Self::Perspective {
+        // the sole choice available
+        crate::Perspective::IaIsDownAndPointsUpward
+    }
+
+    fn absolute_distance(a: Self::AbsoluteCoord, b: Self::AbsoluteCoord) -> i32 {
+        crate::Coord::distance(a, b)
+    }
+
+    fn absolute_same_direction(
+        origin: Self::AbsoluteCoord,
+        a: Self::AbsoluteCoord,
+        b: Self::AbsoluteCoord,
+    ) -> bool {
+        crate::Coord::same_direction(origin, a, b)
+    }
+
+    fn has_prof_absolute(piece: Self::AbsolutePiece, prof: Profession) -> bool {
+        match piece.prof() {
+            MaybeTam2::Tam2 => false,
+            MaybeTam2::NotTam2(self_prof) => prof == self_prof,
+        }
+    }
+}
+
+impl IsAbsoluteField for Field {
+    /// The initial arrangement of the official (yhuap) rule
+    fn yhuap_initial() -> Self {
+        Self {
+            board: Board::yhuap_initial(),
+            hop1zuo1: Hop1zuo1::new(),
+        }
+    }
+}
