@@ -3,7 +3,8 @@
 use std::num::NonZeroU8;
 
 use cetkaik_core::{
-    absolute, serialize_color, Color, IsAbsoluteBoard, IsBoard, IsField, Profession,
+    absolute, serialize_color, Color, IsAbsoluteBoard, IsAbsoluteField, IsBoard, IsField,
+    Profession,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -328,6 +329,15 @@ pub struct Hop1zuo1([u8; 12]);
 pub struct Field {
     board: Board,
     hop1zuo1: Hop1zuo1,
+}
+
+impl IsAbsoluteField for Field {
+    fn yhuap_initial() -> Self {
+        Self {
+            board: Board::yhuap_initial(),
+            hop1zuo1: Hop1zuo1::new(),
+        }
+    }
 }
 
 impl IsField for Field {
