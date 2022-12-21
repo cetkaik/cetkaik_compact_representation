@@ -362,20 +362,6 @@ impl IsField for Field {
         }
     }
 
-    /// # Panics
-    /// Panics when `p` is not in hop1zuo1.
-    fn parachute_nontam(&mut self, p: PieceWithSide, to: Coord) {
-        assert!(
-            self.hop1zuo1.exists(p),
-            "cannot place {:?} ({}) because it is not in hop1zuo1",
-            p,
-            p
-        );
-
-        self.hop1zuo1.clear(p);
-        self.board.put(to, Some(p));
-    }
-
     fn as_board(&self) -> &Board {
         &self.board
     }
@@ -384,19 +370,19 @@ impl IsField for Field {
         &mut self.board
     }
 
-    fn find_and_remove_piece_from_hop1zuo1(
+    fn search_from_hop1zuo1_and_parachute_at(
         &self,
         color: Color,
         prof: Profession,
-        side: Self::Side,
-    ) -> Option<Self>
-    where
-        Self: std::marker::Sized,
-    {
+        side: cetkaik_core::absolute::Side,
+        dest: Coord,
+    ) -> Option<Self> {
         for piece in self.as_hop1zuo1().both_hop1zuo1() {
             if piece.color() == color && piece.prof_and_side() == MaybeTam2::NotTam2((prof, side)) {
                 let mut new_self = *self;
                 new_self.as_hop1zuo1_mut().clear(piece);
+                new_self.as_board().assert_empty(dest);
+                new_self.as_board_mut().put(dest, Some(piece));
                 return Some(new_self);
             }
         }
