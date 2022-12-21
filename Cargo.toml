@@ -1,6 +1,6 @@
 [package]
 name = "cetkaik_compact_representation"
-version = "0.3.5"
+version = "1.0.0"
 description = "compact representation of cetkaik"
 license = "MIT"
 edition = "2021"
@@ -8,5 +8,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cetkaik_interface = { path = "../cetkaik_interface" }
-cetkaik_fundamental = { path = "../cetkaik_fundamental" }
+cetkaik_traits = "1.0.0"
+cetkaik_fundamental = "1.0.0"

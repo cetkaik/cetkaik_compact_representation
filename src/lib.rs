@@ -4,7 +4,7 @@ use std::num::NonZeroU8;
 
 use cetkaik_fundamental::{serialize_color, AbsoluteSide, Color, Profession};
 
-use cetkaik_interface::{CetkaikRepresentation, IsAbsoluteBoard, IsBoard, IsField, IsAbsoluteField};
+use cetkaik_traits::{CetkaikRepresentation, IsAbsoluteBoard, IsBoard, IsField, IsAbsoluteField};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -13,7 +13,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_interface::IsAbsoluteBoard;
+    /// use cetkaik_traits::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().both_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
@@ -41,7 +41,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_interface::IsAbsoluteBoard;
+    /// use cetkaik_traits::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().ia_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o300, 0o100, 0o101, 0o102,
@@ -68,7 +68,7 @@ impl Board {
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
-    /// use cetkaik_interface::IsAbsoluteBoard;
+    /// use cetkaik_traits::IsAbsoluteBoard;
     /// assert_eq!(
     ///     Board::yhuap_initial().a_side_and_tam().map(|(coord, piece)| piece).collect::<Vec<_>>(),
     ///     [0o242, 0o236, 0o226, 0o252, 0o255, 0o253, 0o227,
