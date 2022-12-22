@@ -1,6 +1,6 @@
 [package]
 name = "cetkaik_compact_representation"
-version = "1.0.0"
+version = "1.0.1"
 description = "compact representation of cetkaik"
 license = "MIT"
 edition = "2021"

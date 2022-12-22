@@ -4,12 +4,21 @@ use std::num::NonZeroU8;
 
 use cetkaik_fundamental::{serialize_color, AbsoluteSide, Color, Profession};
 
-use cetkaik_traits::{CetkaikRepresentation, IsAbsoluteBoard, IsBoard, IsField, IsAbsoluteField};
+use cetkaik_traits::{CetkaikRepresentation, IsAbsoluteBoard, IsAbsoluteField, IsBoard, IsField};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
 
 impl Board {
+    #[must_use]
+    pub const fn to_piece_array(self) -> [[Option<PieceWithSide>; 9]; 9] {
+        self.0
+    }
+
+    #[must_use]
+    pub const fn to_u8_array(self) -> [[u8; 9]; 9] {
+        unsafe { std::mem::transmute::<Self, [[u8; 9]; 9]>(self) }
+    }
     /// # Example
     /// ```
     /// use cetkaik_compact_representation::*;
