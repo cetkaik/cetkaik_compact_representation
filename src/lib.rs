@@ -4,7 +4,9 @@ use std::num::NonZeroU8;
 
 use cetkaik_fundamental::{serialize_color, AbsoluteSide, Color, Profession};
 
-use cetkaik_traits::{CetkaikRepresentation, IsAbsoluteBoard, IsAbsoluteField, IsBoard, IsField};
+use cetkaik_traits::{
+    CetkaikRepresentation, IsAbsoluteBoard, IsAbsoluteField, IsBoard, IsField, IsPieceWithSide,
+};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Board([SingleRow; 9]);
@@ -325,6 +327,21 @@ impl std::fmt::Display for PieceWithSide {
                 serialize_color(self.color()),
                 serialize_prof(prof)
             ),
+        }
+    }
+}
+
+impl IsPieceWithSide for PieceWithSide {
+    type Side = AbsoluteSide;
+
+    fn match_on_piece_and_apply<U>(
+        self,
+        f_tam: &dyn Fn() -> U,
+        f_piece: &dyn Fn(Color, Profession, Self::Side) -> U,
+    ) -> U {
+        match self.prof_and_side() {
+            crate::MaybeTam2::Tam2 => f_tam(),
+            crate::MaybeTam2::NotTam2((prof, side)) => f_piece(self.color(), prof, side),
         }
     }
 }
@@ -1110,6 +1127,9 @@ impl CetkaikRepresentation for CetkaikCompact {
     fn to_absolute_coord(coord: Self::RelativeCoord, _p: Self::Perspective) -> Self::AbsoluteCoord {
         coord
     }
+    fn to_relative_coord(coord: Self::AbsoluteCoord, _p: Self::Perspective) -> Self::RelativeCoord {
+        coord
+    }
     fn add_delta(
         coord: Self::RelativeCoord,
         row_delta: isize,
@@ -1149,16 +1169,6 @@ impl CetkaikRepresentation for CetkaikCompact {
     }
     fn is_upward(s: Self::RelativeSide) -> bool {
         s == AbsoluteSide::IASide
-    }
-    fn match_on_piece_and_apply<U>(
-        piece: Self::RelativePiece,
-        f_tam: &dyn Fn() -> U,
-        f_piece: &dyn Fn(Profession, Self::RelativeSide) -> U,
-    ) -> U {
-        match piece.prof_and_side() {
-            crate::MaybeTam2::Tam2 => f_tam(),
-            crate::MaybeTam2::NotTam2((prof, side)) => f_piece(prof, side),
-        }
     }
     fn empty_squares_relative(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
         let mut ans = vec![];
@@ -1254,25 +1264,6 @@ impl CetkaikRepresentation for CetkaikCompact {
             MaybeTam2::Tam2 => false,
             MaybeTam2::NotTam2(self_prof) => prof == self_prof,
         }
-    }
-
-    fn match_on_relative_piece_and_apply<U>(
-        piece: Self::RelativePiece,
-        f_tam: &dyn Fn() -> U,
-        f_piece: &dyn Fn(Color, Profession, Self::RelativeSide) -> U,
-    ) -> U {
-        match piece.prof_and_side() {
-            crate::MaybeTam2::Tam2 => f_tam(),
-            crate::MaybeTam2::NotTam2((prof, side)) => f_piece(piece.color(), prof, side),
-        }
-    }
-
-    fn match_on_absolute_piece_and_apply<U>(
-        piece: Self::AbsolutePiece,
-        f_tam: &dyn Fn() -> U,
-        f_piece: &dyn Fn(Color, Profession, cetkaik_fundamental::AbsoluteSide) -> U,
-    ) -> U {
-        Self::match_on_relative_piece_and_apply::<U>(piece, f_tam, f_piece)
     }
 }
 
