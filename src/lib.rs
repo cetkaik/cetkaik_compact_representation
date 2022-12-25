@@ -1165,7 +1165,7 @@ impl CetkaikRepresentation for CetkaikCompact {
         for rand_i in 0..9 {
             for rand_j in 0..9 {
                 let coord: Self::RelativeCoord = Self::RelativeCoord::new(rand_i, rand_j).unwrap();
-                if Self::relative_get(*board, coord).is_none() {
+                if board.peek(coord).is_none() {
                     ans.push(coord);
                 }
             }
@@ -1254,6 +1254,25 @@ impl CetkaikRepresentation for CetkaikCompact {
             MaybeTam2::Tam2 => false,
             MaybeTam2::NotTam2(self_prof) => prof == self_prof,
         }
+    }
+
+    fn match_on_relative_piece_and_apply<U>(
+        piece: Self::RelativePiece,
+        f_tam: &dyn Fn() -> U,
+        f_piece: &dyn Fn(Color, Profession, Self::RelativeSide) -> U,
+    ) -> U {
+        match piece.prof_and_side() {
+            crate::MaybeTam2::Tam2 => f_tam(),
+            crate::MaybeTam2::NotTam2((prof, side)) => f_piece(piece.color(), prof, side),
+        }
+    }
+
+    fn match_on_absolute_piece_and_apply<U>(
+        piece: Self::AbsolutePiece,
+        f_tam: &dyn Fn() -> U,
+        f_piece: &dyn Fn(Color, Profession, cetkaik_fundamental::AbsoluteSide) -> U,
+    ) -> U {
+        Self::match_on_relative_piece_and_apply::<U>(piece, f_tam, f_piece)
     }
 }
 
