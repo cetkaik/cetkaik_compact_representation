@@ -995,6 +995,7 @@ struct ASideHop1Zuo1IterWithColorAndProf {
     h: [u8; 12],
 }
 
+#[warn(clippy::pedantic, clippy::nursery)]
 pub mod iter;
 
 #[cfg(test)]
