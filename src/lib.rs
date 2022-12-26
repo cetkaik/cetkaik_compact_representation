@@ -378,6 +378,11 @@ impl IsField for Field {
             return Err("not the right owner");
         }
 
+        // self-occlusion
+        if from == to {
+            return Ok(*self);
+        }
+
         match self.as_board().0[to.row_index as usize][to.col_index as usize] {
             None => {
                 let mut new_self = *self;
