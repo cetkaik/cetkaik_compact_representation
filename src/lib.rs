@@ -1191,6 +1191,38 @@ impl CetkaikRepresentation for CetkaikCompact {
         Self::empty_squares_relative(board)
     }
 
+    /// ```
+    /// use cetkaik_compact_representation::*;
+    /// use cetkaik_fundamental::*;
+    /// use cetkaik_traits::CetkaikRepresentation;
+    /// let field = unsafe { std::mem::transmute::<[u8; 93], Field>([
+    ///     162, 158, 150, 0, 173, 0, 151, 159, 163, 
+    ///     167, 147, 170, 155, 0, 154, 171, 146, 166, 
+    ///     136, 137, 0, 139, 110, 143, 142, 141, 140, 
+    ///     0, 80, 0, 0, 0, 0, 0, 0, 0, 
+    ///     0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ///     0, 0, 0, 0, 0, 0, 192, 0, 0, 
+    ///     64, 65, 66, 67, 0, 71, 70, 69, 68, 
+    ///     100, 0, 0, 88, 0, 89, 0, 81, 101, 
+    ///     97, 93, 85, 105, 108, 104, 84, 92, 96, 
+    ///     0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1
+    /// ]) };
+    /// 
+    /// assert_eq!(
+    ///     <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::IASide, &field).iter()
+    ///                     .map(|c| c.to_string())
+    ///                     .collect::<Vec<_>>()
+    ///                     .join(" "),
+    ///     "黒兵 赤船"
+    /// );
+    /// assert_eq!(
+    ///     <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::ASide, &field).iter()
+    ///                     .map(|c| c.to_string())
+    ///                     .collect::<Vec<_>>()
+    ///                     .join(" "),
+    ///     ""
+    /// );
+    /// ```
     fn hop1zuo1_of(
         side: AbsoluteSide,
         field: &Self::AbsoluteField,
