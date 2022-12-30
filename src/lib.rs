@@ -9,6 +9,7 @@ use cetkaik_traits::{
 };
 
 #[derive(Copy, Clone, Debug)]
+#[repr(C)]
 pub struct Board([SingleRow; 9]);
 
 impl Board {
@@ -107,6 +108,7 @@ impl Board {
 type SingleRow = [Option<PieceWithSide>; 9];
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[repr(C)]
 pub struct PieceWithSide(NonZeroU8);
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -348,9 +350,11 @@ impl IsPieceWithSide for PieceWithSide {
 
 /// どちらにも属していなければ 0 を、IA 側は 1 を、A 側は 2 を
 #[derive(Copy, Clone, Debug)]
+#[repr(C)]
 pub struct Hop1zuo1([u8; 12]);
 
 #[derive(Copy, Clone, Debug)]
+#[repr(C)]
 pub struct Field {
     board: Board,
     hop1zuo1: Hop1zuo1,
