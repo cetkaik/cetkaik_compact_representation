@@ -736,6 +736,16 @@ impl IsBoard for Board {
             c
         );
     }
+
+    type EmptySquaresIter = EmptySquaresIter;
+
+    fn empty_squares(&self) -> Self::EmptySquaresIter {
+        EmptySquaresIter {
+            board: *self,
+            row_index: 0,
+            col_index: 0,
+        }
+    }
 }
 
 impl Default for Hop1zuo1 {
@@ -915,7 +925,11 @@ impl Hop1zuo1 {
     pub fn ia_side_hop1zuo1_color_and_prof(
         self,
     ) -> impl Iterator<Item = cetkaik_fundamental::ColorAndProf> {
-        IASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
+        SingleSideHop1Zuo1IterWithColorAndProf {
+            side: AbsoluteSide::IASide,
+            h: self.0,
+            i: 0,
+        }
     }
 
     /// Guaranteed to output the result so that the lower 6 bits are in the ascending order.
@@ -971,7 +985,11 @@ impl Hop1zuo1 {
     pub fn a_side_hop1zuo1_color_and_prof(
         self,
     ) -> impl Iterator<Item = cetkaik_fundamental::ColorAndProf> {
-        ASideHop1Zuo1IterWithColorAndProf { h: self.0, i: 0 }
+        SingleSideHop1Zuo1IterWithColorAndProf {
+            side: AbsoluteSide::ASide,
+            h: self.0,
+            i: 0,
+        }
     }
 }
 struct BothHop1Zuo1Iter {
@@ -989,14 +1007,16 @@ struct ASideHop1Zuo1Iter {
     h: [u8; 12],
 }
 
-struct IASideHop1Zuo1IterWithColorAndProf {
+pub struct SingleSideHop1Zuo1IterWithColorAndProf {
+    side: AbsoluteSide,
     i: u8,
     h: [u8; 12],
 }
 
-struct ASideHop1Zuo1IterWithColorAndProf {
-    i: u8,
-    h: [u8; 12],
+pub struct EmptySquaresIter {
+    board: Board,
+    row_index: usize,
+    col_index: usize,
 }
 
 #[warn(clippy::pedantic, clippy::nursery)]
@@ -1181,19 +1201,10 @@ impl CetkaikRepresentation for CetkaikCompact {
         s == AbsoluteSide::IASide
     }
     fn empty_squares_relative(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
-        let mut ans = vec![];
-        for rand_i in 0..9 {
-            for rand_j in 0..9 {
-                let coord: Self::RelativeCoord = Self::RelativeCoord::new(rand_i, rand_j).unwrap();
-                if board.peek(coord).is_none() {
-                    ans.push(coord);
-                }
-            }
-        }
-        ans
+        board.empty_squares().collect::<Vec<_>>()
     }
     fn empty_squares_absolute(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
-        Self::empty_squares_relative(board)
+        board.empty_squares().collect::<Vec<_>>()
     }
 
     /// ```
@@ -1201,18 +1212,18 @@ impl CetkaikRepresentation for CetkaikCompact {
     /// use cetkaik_fundamental::*;
     /// use cetkaik_traits::CetkaikRepresentation;
     /// let field = unsafe { std::mem::transmute::<[u8; 93], Field>([
-    ///     162, 158, 150, 0, 173, 0, 151, 159, 163, 
-    ///     167, 147, 170, 155, 0, 154, 171, 146, 166, 
-    ///     136, 137, 0, 139, 110, 143, 142, 141, 140, 
-    ///     0, 80, 0, 0, 0, 0, 0, 0, 0, 
+    ///     162, 158, 150, 0, 173, 0, 151, 159, 163,
+    ///     167, 147, 170, 155, 0, 154, 171, 146, 166,
+    ///     136, 137, 0, 139, 110, 143, 142, 141, 140,
+    ///     0, 80, 0, 0, 0, 0, 0, 0, 0,
     ///     0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ///     0, 0, 0, 0, 0, 0, 192, 0, 0, 
-    ///     64, 65, 66, 67, 0, 71, 70, 69, 68, 
-    ///     100, 0, 0, 88, 0, 89, 0, 81, 101, 
-    ///     97, 93, 85, 105, 108, 104, 84, 92, 96, 
+    ///     0, 0, 0, 0, 0, 0, 192, 0, 0,
+    ///     64, 65, 66, 67, 0, 71, 70, 69, 68,
+    ///     100, 0, 0, 88, 0, 89, 0, 81, 101,
+    ///     97, 93, 85, 105, 108, 104, 84, 92, 96,
     ///     0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1
     /// ]) };
-    /// 
+    ///
     /// assert_eq!(
     ///     <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::IASide, &field).iter()
     ///                     .map(|c| c.to_string())
@@ -1315,6 +1326,16 @@ impl IsAbsoluteField for Field {
         Self {
             board: Board::yhuap_initial(),
             hop1zuo1: Hop1zuo1::new(),
+        }
+    }
+
+    type Hop1Zuo1Iter = SingleSideHop1Zuo1IterWithColorAndProf;
+
+    fn hop1zuo1_of(&self, side: cetkaik_fundamental::AbsoluteSide) -> Self::Hop1Zuo1Iter {
+        SingleSideHop1Zuo1IterWithColorAndProf {
+            side,
+            h: self.hop1zuo1.0,
+            i: 0,
         }
     }
 }
