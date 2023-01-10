@@ -1268,6 +1268,38 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn hop1zuo1_of() {
+        use cetkaik_fundamental::AbsoluteSide;
+        use cetkaik_traits::CetkaikRepresentation;
+        let field = unsafe {
+            std::mem::transmute::<[u8; 93], Field>([
+                162, 158, 150, 0, 173, 0, 151, 159, 163, 167, 147, 170, 155, 0, 154, 171, 146, 166,
+                136, 137, 0, 139, 110, 143, 142, 141, 140, 0, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 64, 65, 66, 67, 0, 71, 70, 69, 68, 100,
+                0, 0, 88, 0, 89, 0, 81, 101, 97, 93, 85, 105, 108, 104, 84, 92, 96, 0, 0, 4, 0, 0,
+                0, 0, 0, 0, 0, 0, 1,
+            ])
+        };
+
+        assert_eq!(
+            <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::IASide, &field)
+                .iter()
+                .map(|c| c.to_string())
+                .collect::<Vec<_>>()
+                .join(" "),
+            "黒兵 赤船"
+        );
+        assert_eq!(
+            <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::ASide, &field)
+                .iter()
+                .map(|c| c.to_string())
+                .collect::<Vec<_>>()
+                .join(" "),
+            ""
+        );
+    }
 }
 
 pub type PureMove = cetkaik_fundamental::PureMove_<Coord>;
@@ -1339,51 +1371,6 @@ impl CetkaikRepresentation for CetkaikCompact {
     }
     fn is_upward(s: Self::RelativeSide) -> bool {
         s == AbsoluteSide::IASide
-    }
-    fn empty_squares_relative(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
-        board.empty_squares().collect::<Vec<_>>()
-    }
-    fn empty_squares_absolute(board: &Self::RelativeBoard) -> Vec<Self::RelativeCoord> {
-        board.empty_squares().collect::<Vec<_>>()
-    }
-
-    /// ```
-    /// use cetkaik_compact_representation::*;
-    /// use cetkaik_fundamental::*;
-    /// use cetkaik_traits::CetkaikRepresentation;
-    /// let field = unsafe { std::mem::transmute::<[u8; 93], Field>([
-    ///     162, 158, 150, 0, 173, 0, 151, 159, 163,
-    ///     167, 147, 170, 155, 0, 154, 171, 146, 166,
-    ///     136, 137, 0, 139, 110, 143, 142, 141, 140,
-    ///     0, 80, 0, 0, 0, 0, 0, 0, 0,
-    ///     0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ///     0, 0, 0, 0, 0, 0, 192, 0, 0,
-    ///     64, 65, 66, 67, 0, 71, 70, 69, 68,
-    ///     100, 0, 0, 88, 0, 89, 0, 81, 101,
-    ///     97, 93, 85, 105, 108, 104, 84, 92, 96,
-    ///     0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1
-    /// ]) };
-    ///
-    /// assert_eq!(
-    ///     <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::IASide, &field).iter()
-    ///                     .map(|c| c.to_string())
-    ///                     .collect::<Vec<_>>()
-    ///                     .join(" "),
-    ///     "黒兵 赤船"
-    /// );
-    /// assert_eq!(
-    ///     <CetkaikCompact as CetkaikRepresentation>::hop1zuo1_of(AbsoluteSide::ASide, &field).iter()
-    ///                     .map(|c| c.to_string())
-    ///                     .collect::<Vec<_>>()
-    ///                     .join(" "),
-    ///     ""
-    /// );
-    /// ```
-    fn hop1zuo1_of(
-        side: AbsoluteSide,
-        field: &Self::AbsoluteField,
-    ) -> Vec<cetkaik_fundamental::ColorAndProf> {
-        field.hop1zuo1_of(side).collect()
     }
     fn as_board_absolute(field: &Self::AbsoluteField) -> &Self::AbsoluteBoard {
         field.as_board()
