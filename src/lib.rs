@@ -1128,6 +1128,146 @@ mod tests {
     fn size() {
         assert_eq!(std::mem::size_of::<Field>(), 93);
     }
+
+    #[allow(clippy::too_many_lines)]
+    #[test]
+    fn empty_sq() {
+        use cetkaik_traits::IsAbsoluteBoard;
+        use cetkaik_traits::IsBoard;
+        assert_eq!(
+            Board::yhuap_initial().empty_squares().collect::<Vec<_>>(),
+            vec![
+                Coord {
+                    row_index: 1,
+                    col_index: 2
+                },
+                Coord {
+                    row_index: 1,
+                    col_index: 4
+                },
+                Coord {
+                    row_index: 1,
+                    col_index: 6
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 0
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 1
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 2
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 3
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 4
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 5
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 6
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 7
+                },
+                Coord {
+                    row_index: 3,
+                    col_index: 8
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 0
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 1
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 2
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 3
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 5
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 6
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 7
+                },
+                Coord {
+                    row_index: 4,
+                    col_index: 8
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 0
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 1
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 2
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 3
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 4
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 5
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 6
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 7
+                },
+                Coord {
+                    row_index: 5,
+                    col_index: 8
+                },
+                Coord {
+                    row_index: 7,
+                    col_index: 2
+                },
+                Coord {
+                    row_index: 7,
+                    col_index: 4
+                },
+                Coord {
+                    row_index: 7,
+                    col_index: 6
+                }
+            ]
+        );
+    }
 }
 
 pub type PureMove = cetkaik_fundamental::PureMove_<Coord>;
@@ -1243,16 +1383,7 @@ impl CetkaikRepresentation for CetkaikCompact {
         side: AbsoluteSide,
         field: &Self::AbsoluteField,
     ) -> Vec<cetkaik_fundamental::ColorAndProf> {
-        match side {
-            AbsoluteSide::ASide => field
-                .to_hop1zuo1()
-                .a_side_hop1zuo1_color_and_prof()
-                .collect(),
-            AbsoluteSide::IASide => field
-                .to_hop1zuo1()
-                .ia_side_hop1zuo1_color_and_prof()
-                .collect(),
-        }
+        field.hop1zuo1_of(side).collect()
     }
     fn as_board_absolute(field: &Self::AbsoluteField) -> &Self::AbsoluteBoard {
         field.as_board()

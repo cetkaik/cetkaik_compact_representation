@@ -118,20 +118,21 @@ impl Iterator for crate::EmptySquaresIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         use cetkaik_traits::IsBoard;
-        let coord: crate::Coord = crate::Coord::new(self.row_index, self.col_index).unwrap();
-        if self.board.peek(coord).is_none() {
-            return Some(coord);
-        }
+        let coord: crate::Coord = crate::Coord::new(self.row_index, self.col_index)?;
 
-        if self.col_index < 9 {
+        if self.col_index <= 7 {
             self.col_index += 1;
-            return self.next();
-        } else if self.row_index < 9 {
+        } else if self.row_index <= 7 {
             self.col_index = 0;
             self.row_index += 1;
-            return self.next();
+        } else {
+            return None;
         }
 
-        return None;
+        if self.board.peek(coord).is_none() {
+            Some(coord)
+        } else {
+            self.next()
+        }
     }
 }
